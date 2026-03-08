@@ -15,6 +15,7 @@ import AdminOverview from "./pages/AdminOverview";
 import AdminApprovals from "./pages/AdminApprovals";
 import TaxReport from "./pages/TaxReport";
 import WalletPage from "./pages/WalletPage";
+import DriveWithUs from "./pages/DriveWithUs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
