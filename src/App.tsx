@@ -7,6 +7,8 @@ import Index from "./pages/Index";
 import RiderHome from "./pages/RiderHome";
 import DriverHome from "./pages/DriverHome";
 import GoldMember from "./pages/GoldMember";
+import DriverOnboarding from "./pages/DriverOnboarding";
+import AdminApprovals from "./pages/AdminApprovals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +24,8 @@ const App = () => (
           <Route path="/rider" element={<RiderHome />} />
           <Route path="/driver" element={<DriverHome />} />
           <Route path="/gold" element={<GoldMember />} />
+          <Route path="/onboarding" element={<DriverOnboarding />} />
+          <Route path="/admin/approvals" element={<AdminApprovals />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
