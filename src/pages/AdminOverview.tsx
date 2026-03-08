@@ -10,6 +10,9 @@ import {
 } from "lucide-react";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminSupportTickets from "@/components/support/AdminSupportTickets";
+import { Button } from "@/components/ui/button";
+import { Crosshair } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminOverview() {
   const { user } = useAuth();
