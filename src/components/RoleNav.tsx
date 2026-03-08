@@ -1,11 +1,12 @@
 import { useAuth } from "@/hooks/useAuth";
 import { NavLink } from "@/components/NavLink";
 import {
-  MapPin, History, User, Wallet, Wrench, Car, Shield, Users, FileText, BarChart3, LogOut,
+  MapPin, History, User, Wallet, Wrench, Car, Shield, Users, FileText, BarChart3, LogOut, HelpCircle,
 } from "lucide-react";
 
 const riderLinks = [
   { to: "/rider", label: "My Trips", icon: MapPin },
+  { to: "/help", label: "Help", icon: HelpCircle },
   { to: "/gold", label: "Profile", icon: User },
 ];
 
