@@ -1,14 +1,15 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import ERideLogo from "@/components/ERideLogo";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Flame, Send, Zap, Ban, DollarSign } from "lucide-react";
+import { Shield, Flame, Send, Zap, Ban, DollarSign, MapPin, Megaphone } from "lucide-react";
 import DemandHeatmap from "@/components/admin/DemandHeatmap";
 import ManualDispatch from "@/components/admin/ManualDispatch";
 import SurgeControl from "@/components/admin/SurgeControl";
 import UserSuspension from "@/components/admin/UserSuspension";
 import FinancialReconciliation from "@/components/admin/FinancialReconciliation";
+import LiveOperations from "@/components/admin/LiveOperations";
+import BroadcastComposer from "@/components/admin/BroadcastComposer";
 
 const TABS = [
   { value: "heatmap", label: "Heatmap", icon: Flame },
@@ -16,6 +17,8 @@ const TABS = [
   { value: "surge", label: "Surge", icon: Zap },
   { value: "users", label: "Users", icon: Ban },
   { value: "finance", label: "Finance", icon: DollarSign },
+  { value: "live", label: "Live", icon: MapPin },
+  { value: "broadcast", label: "Broadcast", icon: Megaphone },
 ];
 
 export default function AdminCommandCenter() {
@@ -37,9 +40,9 @@ export default function AdminCommandCenter() {
         </motion.div>
 
         <Tabs defaultValue="heatmap" className="mt-6">
-          <TabsList className="w-full grid grid-cols-5 h-auto">
+          <TabsList className="w-full grid grid-cols-7 h-auto">
             {TABS.map(tab => (
-              <TabsTrigger key={tab.value} value={tab.value} className="flex flex-col items-center gap-1 py-2 text-[11px]">
+              <TabsTrigger key={tab.value} value={tab.value} className="flex flex-col items-center gap-1 py-2 text-[10px]">
                 <tab.icon className="w-4 h-4" />
                 {tab.label}
               </TabsTrigger>
@@ -52,6 +55,8 @@ export default function AdminCommandCenter() {
             <TabsContent value="surge"><SurgeControl /></TabsContent>
             <TabsContent value="users"><UserSuspension /></TabsContent>
             <TabsContent value="finance"><FinancialReconciliation /></TabsContent>
+            <TabsContent value="live"><LiveOperations /></TabsContent>
+            <TabsContent value="broadcast"><BroadcastComposer /></TabsContent>
           </div>
         </Tabs>
       </div>
