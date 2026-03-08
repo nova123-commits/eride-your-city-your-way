@@ -151,9 +151,10 @@ const DriverHome: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Referral section - visible when offline */}
+      {/* Referral + Home filter — visible when offline */}
       {step === 'offline' && (
-        <div className="px-4 py-3">
+        <div className="px-4 py-3 space-y-3">
+          <HomeDestinationFilter />
           <DriverReferral />
         </div>
       )}
