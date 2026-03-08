@@ -9,6 +9,8 @@ import DriverHome from "./pages/DriverHome";
 import GoldMember from "./pages/GoldMember";
 import DriverOnboarding from "./pages/DriverOnboarding";
 import AdminApprovals from "./pages/AdminApprovals";
+import TaxReport from "./pages/TaxReport";
+import WalletPage from "./pages/WalletPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,8 @@ const App = () => (
           <Route path="/gold" element={<GoldMember />} />
           <Route path="/onboarding" element={<DriverOnboarding />} />
           <Route path="/admin/approvals" element={<AdminApprovals />} />
+          <Route path="/admin/tax" element={<TaxReport />} />
+          <Route path="/wallet" element={<WalletPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
