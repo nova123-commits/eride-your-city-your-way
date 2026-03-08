@@ -144,6 +144,21 @@ const DriverHome: React.FC = () => {
 
         {/* Demand heatmap overlay — visible when online */}
         {(step === 'online' || step === 'request') && <DriverDemandHeatmap />}
+
+        {/* Pulse markers during active trip */}
+        {step === 'trip' && (
+          <>
+            <div className="absolute top-20 left-8">
+              <PulseMapMarker type="pickup" label="Pickup" />
+            </div>
+            <div className="absolute bottom-24 right-8">
+              <PulseMapMarker type="destination" label="Dropoff" />
+            </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <PulseMapMarker type="driver" />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Selfie Verification */}
