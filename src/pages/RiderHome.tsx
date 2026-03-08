@@ -18,6 +18,8 @@ import CurrencyToggle from '@/components/payments/CurrencyToggle';
 import { RIDE_CATEGORIES, calculateFare, generateOTP, MOCK_DRIVER, isPeakHour, type RideCategory } from '@/lib/ride';
 import { calculateFareBreakdown, formatCurrency, convertCurrency, type CurrencyCode } from '@/lib/currency';
 import RoleNav from '@/components/RoleNav';
+import PromoBanner from '@/components/PromoBanner';
+import RiderWaitlist from '@/components/RiderWaitlist';
 
 type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'payment' | 'receipt' | 'rating';
 
