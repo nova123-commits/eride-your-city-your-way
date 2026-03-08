@@ -10,6 +10,7 @@ import SOSButton from '@/components/safety/SOSButton';
 import VerifiedBadge from '@/components/safety/VerifiedBadge';
 import { RIDE_CATEGORIES, calculateFare, generateOTP } from '@/lib/ride';
 import RoleNav from '@/components/RoleNav';
+import DriverReferral from '@/components/DriverReferral';
 
 type DriverStep = 'offline' | 'selfie' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
