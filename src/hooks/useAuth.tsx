@@ -76,9 +76,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // THEN check existing session
+    // THEN check existing session — and validate it's still valid
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!mounted) return;
+      if (session?.user) {
+        // Validate user still exists by checking with getUser()
+        const { data: { user: validUser }, error } = await supabase.auth.getUser();
+        if (!validUser || error) {
+          console.warn("[eRide Auth] Stale session detected — clearing");
+          await supabase.auth.signOut();
+          localStorage.clear();
+          setSession(null);
+          setUser(null);
+          setRole(null);
+          setRoleLoading(false);
+          if (mounted) setLoading(false);
+          window.location.href = "/";
+          return;
+        }
+      }
       console.log("[eRide Auth] getSession -> user:", session?.user?.id ?? "none");
       setSession(session);
       setUser(session?.user ?? null);
@@ -86,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setRole(null);
         setRoleLoading(true);
         const freshRole = await fetchRole(session.user.id);
-        console.log("[eRide Auth] getSession -> DB role:", freshRole, "| user_metadata.role:", session.user.user_metadata?.role, "| userId:", session.user.id);
+        console.log("[eRide Auth] getSession -> DB role:", freshRole, "| userId:", session.user.id);
       } else {
         setRoleLoading(false);
       }
