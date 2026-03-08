@@ -51,11 +51,7 @@ const TripsHistory: React.FC = () => {
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : trips.length === 0 ? (
-          <EmptyState
-            icon={<Clock className="w-12 h-12 text-muted-foreground" />}
-            title="No trips yet"
-            description="Your trip history will appear here after your first ride."
-          />
+          <EmptyState variant="no-history" />
         ) : (
           trips.map((trip) => (
             <div key={trip.id} className="p-4 rounded-xl bg-card border border-border space-y-2">
