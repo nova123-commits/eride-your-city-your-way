@@ -186,6 +186,7 @@ const RiderHome: React.FC = () => {
                 onRemove={() => setErrandStop(null)}
               />
               <PinkModeToggle enabled={pinkMode} onToggle={setPinkMode} />
+              <LoyaltyRewards />
               <RiderWaitlist />
             </div>
           )}
