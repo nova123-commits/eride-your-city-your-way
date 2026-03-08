@@ -11,6 +11,8 @@ import VerifiedBadge from '@/components/safety/VerifiedBadge';
 import { RIDE_CATEGORIES, calculateFare, generateOTP } from '@/lib/ride';
 import RoleNav from '@/components/RoleNav';
 import DriverReferral from '@/components/DriverReferral';
+import DriverDemandHeatmap from '@/components/driver/DriverDemandHeatmap';
+import HomeDestinationFilter from '@/components/driver/HomeDestinationFilter';
 
 type DriverStep = 'offline' | 'selfie' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
@@ -137,6 +139,9 @@ const DriverHome: React.FC = () => {
           backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }} />
+
+        {/* Demand heatmap overlay — visible when online */}
+        {(step === 'online' || step === 'request') && <DriverDemandHeatmap />}
       </div>
 
       {/* Selfie Verification */}
@@ -146,9 +151,10 @@ const DriverHome: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Referral section - visible when offline */}
+      {/* Referral + Home filter — visible when offline */}
       {step === 'offline' && (
-        <div className="px-4 py-3">
+        <div className="px-4 py-3 space-y-3">
+          <HomeDestinationFilter />
           <DriverReferral />
         </div>
       )}
