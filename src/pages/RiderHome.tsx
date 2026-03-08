@@ -11,6 +11,8 @@ import SearchingDriver from '@/components/SearchingDriver';
 import DriverMatched from '@/components/DriverMatched';
 import RatingModal from '@/components/RatingModal';
 import ImpactTracker from '@/components/ImpactTracker';
+import CarbonFootprintTracker from '@/components/CarbonFootprintTracker';
+import LoyaltyRewards from '@/components/LoyaltyRewards';
 import PinkModeToggle from '@/components/safety/PinkModeToggle';
 import PaymentFlow from '@/components/payments/PaymentFlow';
 import DigitalReceipt from '@/components/payments/DigitalReceipt';
