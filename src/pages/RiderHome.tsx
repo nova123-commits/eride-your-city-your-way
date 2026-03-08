@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, MapPin, Crown, Clock } from 'lucide-react';
+import RiderSidebar from '@/components/RiderSidebar';
 import { useNavigate } from 'react-router-dom';
 import ERideLogo from '@/components/ERideLogo';
 import DestinationInput from '@/components/DestinationInput';
@@ -42,6 +43,7 @@ const RiderHome: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [step, setStep] = useState<RiderStep>('home');
   const [pickup, setPickup] = useState('Current Location');
   const [destination, setDestination] = useState('');
@@ -143,8 +145,9 @@ const RiderHome: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <RiderSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
       <header className="flex items-center justify-between px-5 pt-4 pb-2 safe-top">
-        <button className="w-10 h-10 rounded-xl glass-fab flex items-center justify-center btn-press">
+        <button onClick={() => setSidebarOpen(true)} className="w-10 h-10 rounded-xl glass-fab flex items-center justify-center btn-press">
           <Menu className="w-5 h-5 text-foreground" />
         </button>
         <ERideLogo size="sm" />
