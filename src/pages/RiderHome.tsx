@@ -362,6 +362,23 @@ const RiderHome: React.FC = () => {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {step === 'tripSummary' && selectedCategory && (
+          <TripSummaryOverlay
+            key="summary"
+            pickup={pickup}
+            destination={destination || 'JKIA Airport'}
+            distanceKm={distanceKm}
+            durationMinutes={18}
+            categoryId={selectedCategory.id}
+            fare={fare}
+            currency={currency === 'KES' ? 'KES' : '$'}
+            onContinue={handleSummaryPayment}
+            onDownloadReceipt={handleDownloadReceipt}
+          />
+        )}
+      </AnimatePresence>
+
       {step === 'rating' && (
         <RatingModal
           role="rider"
