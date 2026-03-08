@@ -73,7 +73,10 @@ export default function AdminOverview() {
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Admin Overview</h1>
-          <p className="text-sm text-muted-foreground mt-1">Platform health at a glance.</p>
+        <p className="text-sm text-muted-foreground mt-1">Platform health at a glance.</p>
+          <Button variant="outline" size="sm" className="mt-2 gap-2" onClick={() => navigate("/admin/command")}>
+            <Crosshair className="w-4 h-4" /> Command Center
+          </Button>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
