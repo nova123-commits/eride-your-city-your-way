@@ -60,14 +60,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (!mounted) return;
+        console.log("[eRide Auth] onAuthStateChange event:", _event, "user:", session?.user?.id ?? "none");
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          // Reset role to null before fetching to prevent stale data
           setRole(null);
           setRoleLoading(true);
           const freshRole = await fetchRole(session.user.id);
-          console.log("[eRide Auth] onAuthStateChange -> role fetched:", freshRole, "for user:", session.user.id);
+          console.log("[eRide Auth] onAuthStateChange -> DB role:", freshRole, "| user_metadata.role:", session.user.user_metadata?.role, "| userId:", session.user.id);
         } else {
           setRole(null);
           setRoleLoading(false);
@@ -79,13 +79,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // THEN check existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!mounted) return;
+      console.log("[eRide Auth] getSession -> user:", session?.user?.id ?? "none");
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
         setRole(null);
         setRoleLoading(true);
         const freshRole = await fetchRole(session.user.id);
-        console.log("[eRide Auth] getSession -> role fetched:", freshRole, "for user:", session.user.id);
+        console.log("[eRide Auth] getSession -> DB role:", freshRole, "| user_metadata.role:", session.user.user_metadata?.role, "| userId:", session.user.id);
       } else {
         setRoleLoading(false);
       }

@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
 interface ProtectedRouteProps {
@@ -8,6 +8,17 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, role, loading, roleLoading } = useAuth();
+  const location = useLocation();
+
+  // === DIAGNOSTIC LOG ===
+  console.log("[eRide Guard]", {
+    path: location.pathname,
+    userId: user?.id ?? "none",
+    role,
+    loading,
+    roleLoading,
+    allowedRoles: allowedRoles ?? "any",
+  });
 
   // Wait for BOTH auth session AND role to be 100% resolved before any redirect
   if (loading || roleLoading) {
@@ -22,10 +33,11 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   }
 
   if (!user) {
+    console.warn("[eRide Guard] No user session — redirecting to /auth");
     return <Navigate to="/auth" replace />;
   }
 
-  // Role is loaded but null shouldn't happen — fallback
+  // No role in DB — send to /auth so they can re-register properly
   if (!role) {
     console.warn("[eRide Guard] Role is null after loading completed — redirecting to /auth");
     return <Navigate to="/auth" replace />;
@@ -34,7 +46,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   // Debug overlay (temporary) — visible in bottom-right corner
   const debugOverlay = (
     <div className="fixed bottom-1 right-1 z-[9999] bg-black/80 text-[10px] text-green-400 px-2 py-1 rounded font-mono pointer-events-none">
-      Role: {role}
+      Role: {role} | Path: {location.pathname}
     </div>
   );
 
@@ -43,8 +55,9 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     return <>{debugOverlay}{children}</>;
   }
 
+  // STRICT: if route requires specific roles and user doesn't match, redirect to THEIR role home (not /auth)
   if (allowedRoles && !allowedRoles.includes(role)) {
-    console.warn(`[eRide Guard] Role "${role}" not in allowedRoles [${allowedRoles}] — redirecting`);
+    console.warn(`[eRide Guard] STRICT BLOCK: Role "${role}" cannot access ${location.pathname} (allowed: [${allowedRoles}])`);
     if (role === "rider") return <Navigate to="/rider" replace />;
     if (role === "driver") return <Navigate to="/driver" replace />;
     return <Navigate to="/" replace />;
