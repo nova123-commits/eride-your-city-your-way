@@ -283,6 +283,16 @@ const RiderHome: React.FC = () => {
               onCancel={() => setStep('preferences')}
             />
           )}
+          {step === 'inTrip' && selectedCategory && (
+            <div key="intrip" className="space-y-3">
+              <LiveProgressBar
+                pickup={pickup}
+                destination={destination || 'JKIA Airport'}
+                totalDistanceKm={distanceKm}
+                etaMinutes={18}
+              />
+            </div>
+          )}
           {step === 'receipt' && fareBreakdown && (
             <motion.div key="receipt" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
               <DigitalReceipt
@@ -295,12 +305,20 @@ const RiderHome: React.FC = () => {
                 distance={`${distanceKm} km`}
                 driverName={MOCK_DRIVER.name}
               />
-              <button
-                onClick={handleReceiptDone}
-                className="w-full py-3.5 rounded-xl brand-gradient text-primary-foreground font-bold text-sm btn-press"
-              >
-                Rate Your Ride
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDownloadReceipt}
+                  className="flex-1 py-3.5 rounded-xl border border-border text-foreground font-bold text-sm btn-press flex items-center justify-center gap-2"
+                >
+                  📥 Download Receipt
+                </button>
+                <button
+                  onClick={handleReceiptDone}
+                  className="flex-1 py-3.5 rounded-xl brand-gradient text-primary-foreground font-bold text-sm btn-press"
+                >
+                  Rate Your Ride
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
