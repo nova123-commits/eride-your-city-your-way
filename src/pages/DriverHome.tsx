@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Power, MapPin, Navigation, Clock, Star, Wallet } from 'lucide-react';
+import { Power, MapPin, Navigation, Clock, Star, Wallet, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ERideLogo from '@/components/ERideLogo';
 import RatingModal from '@/components/RatingModal';
