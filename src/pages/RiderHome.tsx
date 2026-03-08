@@ -200,7 +200,13 @@ const RiderHome: React.FC = () => {
                 accessibilityPrefs={accessibilityPrefs}
                 onAccessibilityChange={setAccessibilityPrefs}
               />
-              {isElectric && <ImpactTracker distanceKm={distanceKm} />}
+              {selectedCategory && (
+                <CarbonFootprintTracker
+                  distanceKm={distanceKm}
+                  categoryId={selectedCategory.id}
+                  totalTrips={12}
+                />
+              )}
               {additionalStops.filter(s => s.length > 0).length > 0 && (
                 <div className="text-xs text-muted-foreground px-1">
                   +KES {stopsFee} for {additionalStops.filter(s => s.length > 0).length} additional stop(s)
