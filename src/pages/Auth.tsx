@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import ERideLogo from "@/components/ERideLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Car, Bike, Mail, Lock, User, ArrowLeft } from "lucide-react";
-
 import { Link } from "react-router-dom";
 
 type AuthMode = "login" | "signup";
@@ -16,17 +16,34 @@ type RoleChoice = "rider" | "driver";
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, role, loading, roleLoading } = useAuth();
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [roleChoice, setRoleChoice] = useState<RoleChoice>("rider");
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  // If already authenticated and role is loaded, redirect to role home
+  if (!loading && !roleLoading && user && role) {
+    if (role === "driver") return <Navigate to="/driver" replace />;
+    if (role === "admin") return <Navigate to="/admin/overview" replace />;
+    return <Navigate to="/rider" replace />;
+  }
+
+  // Show loader while auth state initializes
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
 
     if (mode === "signup") {
       const { data, error } = await supabase.auth.signUp({
@@ -37,13 +54,20 @@ export default function Auth() {
             full_name: fullName,
             role: roleChoice,
           },
+          emailRedirectTo: window.location.origin,
         },
       });
       if (error) {
         toast({ title: "Signup failed", description: error.message, variant: "destructive" });
-      } else if (data.user) {
+      } else if (data.user && !data.session) {
+        // Email confirmation required
+        toast({
+          title: "Check your email",
+          description: "We've sent a confirmation link. Please verify your email to sign in.",
+        });
+      } else if (data.user && data.session) {
+        // Auto-confirmed — redirect
         toast({ title: "Account created!", description: "Welcome to eRide." });
-        // Redirect based on chosen role
         if (roleChoice === "driver") navigate("/driver", { replace: true });
         else navigate("/rider", { replace: true });
       }
@@ -60,13 +84,13 @@ export default function Auth() {
           .limit(1)
           .single();
 
-        const role = roleData?.role ?? "rider";
-        if (role === "driver") navigate("/driver", { replace: true });
-        else if (role === "admin") navigate("/admin/overview", { replace: true });
+        const r = roleData?.role ?? "rider";
+        if (r === "driver") navigate("/driver", { replace: true });
+        else if (r === "admin") navigate("/admin/overview", { replace: true });
         else navigate("/rider", { replace: true });
       }
     }
-    setLoading(false);
+    setSubmitting(false);
   };
 
   return (
@@ -178,8 +202,8 @@ export default function Auth() {
           </label>
         )}
 
-        <Button type="submit" className="w-full" disabled={loading || (mode === "signup" && !agreedToTerms)}>
-          {loading ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
+        <Button type="submit" className="w-full" disabled={submitting || (mode === "signup" && !agreedToTerms)}>
+          {submitting ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
