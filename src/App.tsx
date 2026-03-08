@@ -19,6 +19,7 @@ import DriveWithUs from "./pages/DriveWithUs";
 import Legal from "./pages/Legal";
 import HelpCenter from "./pages/HelpCenter";
 import SharedTrip from "./pages/SharedTrip";
+import DriverDashboard from "./pages/DriverDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/admin/approvals" element={<ProtectedRoute allowedRoles={["admin"]}><AdminApprovals /></ProtectedRoute>} />
             <Route path="/admin/tax" element={<ProtectedRoute allowedRoles={["admin"]}><TaxReport /></ProtectedRoute>} />
             <Route path="/wallet" element={<ProtectedRoute allowedRoles={["driver"]}><WalletPage /></ProtectedRoute>} />
+            <Route path="/driver/dashboard" element={<ProtectedRoute allowedRoles={["driver"]}><DriverDashboard /></ProtectedRoute>} />
             <Route path="/drive-with-us" element={<DriveWithUs />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/terms" element={<Legal />} />

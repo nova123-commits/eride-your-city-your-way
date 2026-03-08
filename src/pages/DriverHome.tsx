@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Power, MapPin, Navigation, Clock, Star, Wallet } from 'lucide-react';
+import { Power, MapPin, Navigation, Clock, Star, Wallet, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ERideLogo from '@/components/ERideLogo';
 import RatingModal from '@/components/RatingModal';
@@ -84,6 +84,12 @@ const DriverHome: React.FC = () => {
             className="text-xs font-medium px-2 py-1 rounded-lg border border-[hsl(210,60%,85%)] text-[hsl(210,80%,50%)] bg-[hsl(210,60%,97%)] dark:border-[hsl(210,40%,25%)] dark:bg-[hsl(210,40%,12%)] btn-press"
           >
             Credentials
+          </button>
+          <button
+            onClick={() => navigate('/driver/dashboard')}
+            className="w-9 h-9 rounded-xl glass-fab flex items-center justify-center btn-press"
+          >
+            <BarChart3 className="w-4 h-4 text-primary" />
           </button>
           <button
             onClick={() => navigate('/wallet')}
