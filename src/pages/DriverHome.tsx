@@ -262,6 +262,7 @@ const DriverHome: React.FC = () => {
       {step === 'rating' && (
         <RatingModal role="driver" name="Alice Wanjiku" onSubmit={handleRatingSubmit} />
       )}
+      <RoleNav />
     </div>
   );
 };

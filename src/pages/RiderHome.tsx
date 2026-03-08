@@ -223,6 +223,7 @@ const RiderHome: React.FC = () => {
           onSubmit={handleRatingSubmit}
         />
       )}
+      <RoleNav />
     </div>
   );
 };
