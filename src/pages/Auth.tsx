@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Car, Bike, Mail, Lock, User, ArrowLeft } from "lucide-react";
 
+import { Link } from "react-router-dom";
+
 type AuthMode = "login" | "signup";
 type RoleChoice = "rider" | "driver";
 
