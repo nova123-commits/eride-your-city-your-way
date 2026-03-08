@@ -1,11 +1,20 @@
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Car, Bike, MessageCircle } from 'lucide-react';
 import ERideLogo from '@/components/ERideLogo';
+import { useAuth } from '@/hooks/useAuth';
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
+  const { user, role, loading, roleLoading } = useAuth();
+
+  // If logged in and role resolved, redirect to role home
+  if (!loading && !roleLoading && user && role) {
+    if (role === "driver") return <Navigate to="/driver" replace />;
+    if (role === "admin") return <Navigate to="/admin/overview" replace />;
+    return <Navigate to="/rider" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
@@ -23,7 +32,7 @@ const Index: React.FC = () => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          onClick={() => navigate('/rider')}
+          onClick={() => navigate('/auth')}
           className="w-full flex items-center gap-4 p-5 rounded-2xl bg-card border border-border hover:border-primary/40 transition-all active:scale-[0.98] group"
         >
           <div className="w-14 h-14 rounded-2xl brand-gradient flex items-center justify-center">
@@ -39,7 +48,7 @@ const Index: React.FC = () => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          onClick={() => navigate('/driver')}
+          onClick={() => navigate('/auth')}
           className="w-full flex items-center gap-4 p-5 rounded-2xl bg-card border border-border hover:border-primary/40 transition-all active:scale-[0.98] group"
         >
           <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
