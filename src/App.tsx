@@ -41,6 +41,7 @@ const App = () => (
             <Route path="/wallet" element={<ProtectedRoute allowedRoles={["driver"]}><WalletPage /></ProtectedRoute>} />
             <Route path="/drive-with-us" element={<DriveWithUs />} />
             <Route path="/legal" element={<Legal />} />
+            <Route path="/terms" element={<Legal />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

@@ -60,6 +60,38 @@ const Index: React.FC = () => {
       >
         Basic · Xtra · Boda — rides for everyone
       </motion.p>
+
+      {/* Contact Support */}
+      <motion.a
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        href="https://wa.me/254700000000?text=Hi%20eRide%20Support"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-4 flex items-center gap-1.5 text-xs text-primary hover:underline"
+      >
+        <MessageCircle className="w-3.5 h-3.5" /> Contact Support
+      </motion.a>
+
+      {/* NTSA Footer */}
+      <motion.footer
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="mt-8 mb-6 text-center max-w-sm"
+      >
+        <p className="text-[10px] text-muted-foreground leading-relaxed">
+          eRide is a registered Transport Network Company (TNC) in Kenya. Compliant with NTSA 2026 Regulations.
+        </p>
+        <div className="mt-2 flex items-center justify-center gap-3 text-[10px]">
+          <Link to="/legal" className="text-primary hover:underline">Terms</Link>
+          <span className="text-muted-foreground">·</span>
+          <Link to="/legal" className="text-primary hover:underline">Privacy</Link>
+          <span className="text-muted-foreground">·</span>
+          <Link to="/drive-with-us" className="text-primary hover:underline">Drive with us</Link>
+        </div>
+      </motion.footer>
     </div>
   );
 };
