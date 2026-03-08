@@ -101,6 +101,8 @@ const RiderHome: React.FC = () => {
         </div>
       </header>
 
+      <PromoBanner />
+
       {/* Map placeholder */}
       <div className="flex-1 relative bg-secondary overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
