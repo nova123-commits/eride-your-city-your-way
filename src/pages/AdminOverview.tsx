@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Shield, Users, Car, Clock, CheckCircle2, TrendingUp,
 } from "lucide-react";
+import AdminAnalytics from "@/components/AdminAnalytics";
 
 export default function AdminOverview() {
   const { user } = useAuth();
@@ -83,6 +84,8 @@ export default function AdminOverview() {
             </motion.div>
           ))}
         </div>
+
+        <AdminAnalytics />
 
         {stats.pendingVerifications > 0 && (
           <Card className="border-yellow-500/30 bg-yellow-500/5">

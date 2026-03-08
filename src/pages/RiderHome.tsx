@@ -18,6 +18,8 @@ import CurrencyToggle from '@/components/payments/CurrencyToggle';
 import { RIDE_CATEGORIES, calculateFare, generateOTP, MOCK_DRIVER, isPeakHour, type RideCategory } from '@/lib/ride';
 import { calculateFareBreakdown, formatCurrency, convertCurrency, type CurrencyCode } from '@/lib/currency';
 import RoleNav from '@/components/RoleNav';
+import PromoBanner from '@/components/PromoBanner';
+import RiderWaitlist from '@/components/RiderWaitlist';
 
 type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'payment' | 'receipt' | 'rating';
 
@@ -99,6 +101,8 @@ const RiderHome: React.FC = () => {
         </div>
       </header>
 
+      <PromoBanner />
+
       {/* Map placeholder */}
       <div className="flex-1 relative bg-secondary overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
@@ -142,6 +146,7 @@ const RiderHome: React.FC = () => {
                 onRemove={() => setErrandStop(null)}
               />
               <PinkModeToggle enabled={pinkMode} onToggle={setPinkMode} />
+              <RiderWaitlist />
             </div>
           )}
           {step === 'categories' && (

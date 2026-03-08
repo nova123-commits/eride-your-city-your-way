@@ -10,6 +10,7 @@ import SOSButton from '@/components/safety/SOSButton';
 import VerifiedBadge from '@/components/safety/VerifiedBadge';
 import { RIDE_CATEGORIES, calculateFare, generateOTP } from '@/lib/ride';
 import RoleNav from '@/components/RoleNav';
+import DriverReferral from '@/components/DriverReferral';
 
 type DriverStep = 'offline' | 'selfie' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
@@ -138,6 +139,13 @@ const DriverHome: React.FC = () => {
           <SelfieVerification onVerified={handleSelfieVerified} onCancel={handleSelfieCancelled} />
         )}
       </AnimatePresence>
+
+      {/* Referral section - visible when offline */}
+      {step === 'offline' && (
+        <div className="px-4 py-3">
+          <DriverReferral />
+        </div>
+      )}
 
       {/* Bottom panel */}
       <div className="px-4 pb-4 pt-3 safe-bottom bg-background">
