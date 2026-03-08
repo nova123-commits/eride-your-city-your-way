@@ -52,13 +52,13 @@ const RideCategories: React.FC<RideCategoriesProps> = ({
                 : 'border-border bg-card hover:border-primary/30'
             }`}
           >
-            <motion.span
-              className="text-3xl"
+            <motion.div
+              className="w-12 h-12 flex items-center justify-center"
               animate={isSelected ? { y: [0, -6, -3, 0] } : {}}
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
-              {cat.icon}
-            </motion.span>
+              <VehicleAvatar categoryId={cat.id} size={48} />
+            </motion.div>
             <div className="flex-1 text-left">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-foreground">{cat.name}</span>
