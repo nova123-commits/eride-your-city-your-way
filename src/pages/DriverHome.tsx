@@ -139,6 +139,9 @@ const DriverHome: React.FC = () => {
           backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }} />
+
+        {/* Demand heatmap overlay — visible when online */}
+        {(step === 'online' || step === 'request') && <DriverDemandHeatmap />}
       </div>
 
       {/* Selfie Verification */}
