@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Car, Bike, Mail, Lock, User, ArrowLeft } from "lucide-react";
 
+import { Link } from "react-router-dom";
+
 type AuthMode = "login" | "signup";
 type RoleChoice = "rider" | "driver";
 
@@ -20,6 +22,7 @@ export default function Auth() {
   const [fullName, setFullName] = useState("");
   const [roleChoice, setRoleChoice] = useState<RoleChoice>("rider");
   const [loading, setLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,7 +162,24 @@ export default function Auth() {
           />
         </div>
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        {mode === "signup" && (
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-border accent-primary"
+            />
+            <span className="text-xs text-muted-foreground leading-relaxed">
+              I agree to the eRide{" "}
+              <Link to="/legal" className="text-primary font-medium hover:underline">Terms of Service</Link>
+              {" "}and{" "}
+              <Link to="/legal" className="text-primary font-medium hover:underline">Privacy Policy</Link>
+            </span>
+          </label>
+        )}
+
+        <Button type="submit" className="w-full" disabled={loading || (mode === "signup" && !agreedToTerms)}>
           {loading ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
         </Button>
 

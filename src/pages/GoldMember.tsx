@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Crown, Zap, Shield, Headphones, Star, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ERideLogo from '@/components/ERideLogo';
+import PrivacySettings from '@/components/PrivacySettings';
 
 const BENEFITS = [
   { icon: Zap, title: '0% Surge Pricing', desc: 'Never pay extra during peak hours' },
@@ -72,6 +73,12 @@ const GoldMember: React.FC = () => {
             </div>
           </motion.div>
         ))}
+      </div>
+
+      {/* Privacy & Data Settings */}
+      <div className="px-5 mt-6">
+        <h2 className="text-base font-bold text-foreground mb-3">Privacy & Data</h2>
+        <PrivacySettings />
       </div>
 
       {/* Pricing */}

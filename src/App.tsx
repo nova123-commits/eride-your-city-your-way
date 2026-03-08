@@ -16,6 +16,7 @@ import AdminApprovals from "./pages/AdminApprovals";
 import TaxReport from "./pages/TaxReport";
 import WalletPage from "./pages/WalletPage";
 import DriveWithUs from "./pages/DriveWithUs";
+import Legal from "./pages/Legal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/admin/tax" element={<ProtectedRoute allowedRoles={["admin"]}><TaxReport /></ProtectedRoute>} />
             <Route path="/wallet" element={<ProtectedRoute allowedRoles={["driver"]}><WalletPage /></ProtectedRoute>} />
             <Route path="/drive-with-us" element={<DriveWithUs />} />
+            <Route path="/legal" element={<Legal />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
