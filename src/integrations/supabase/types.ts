@@ -41,6 +41,39 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          bonus_paid: boolean
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string | null
+          referrer_id: string
+          status: string
+          trips_completed: number
+        }
+        Insert: {
+          bonus_paid?: boolean
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id?: string | null
+          referrer_id: string
+          status?: string
+          trips_completed?: number
+        }
+        Update: {
+          bonus_paid?: boolean
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string | null
+          referrer_id?: string
+          status?: string
+          trips_completed?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -56,6 +89,27 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      waitlist: {
+        Row: {
+          city: string
+          created_at: string
+          id: string
+          phone: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          id?: string
+          phone: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          id?: string
+          phone?: string
         }
         Relationships: []
       }
