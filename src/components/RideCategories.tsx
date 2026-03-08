@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Zap } from 'lucide-react';
+import { Clock, Zap, Leaf } from 'lucide-react';
 import { RIDE_CATEGORIES, calculateFare, isPeakHour, type RideCategory } from '@/lib/ride';
 
 interface RideCategoriesProps {
@@ -8,9 +8,10 @@ interface RideCategoriesProps {
   onSelect: (category: RideCategory) => void;
   distanceKm: number;
   onConfirm: () => void;
+  waitMinutes?: number;
 }
 
-const RideCategories: React.FC<RideCategoriesProps> = ({ selectedId, onSelect, distanceKm, onConfirm }) => {
+const RideCategories: React.FC<RideCategoriesProps> = ({ selectedId, onSelect, distanceKm, onConfirm, waitMinutes = 0 }) => {
   const peak = isPeakHour();
 
   return (
@@ -28,8 +29,9 @@ const RideCategories: React.FC<RideCategoriesProps> = ({ selectedId, onSelect, d
       )}
 
       {RIDE_CATEGORIES.map((cat, i) => {
-        const fare = calculateFare(cat, distanceKm);
+        const fare = calculateFare(cat, distanceKm, waitMinutes);
         const isSelected = selectedId === cat.id;
+        const isEV = cat.id === 'electric';
         return (
           <motion.button
             key={cat.id}
@@ -39,7 +41,7 @@ const RideCategories: React.FC<RideCategoriesProps> = ({ selectedId, onSelect, d
             onClick={() => onSelect(cat)}
             className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all active:scale-[0.98] ${
               isSelected
-                ? 'border-primary bg-accent'
+                ? 'border-primary bg-accent glass-panel'
                 : 'border-border bg-card hover:border-primary/30'
             }`}
           >
@@ -48,6 +50,7 @@ const RideCategories: React.FC<RideCategoriesProps> = ({ selectedId, onSelect, d
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-foreground">{cat.name}</span>
                 {peak && <Zap className="w-3 h-3 text-primary" />}
+                {isEV && <Leaf className="w-3 h-3 text-primary" />}
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                 <Clock className="w-3 h-3" />
@@ -63,6 +66,9 @@ const RideCategories: React.FC<RideCategoriesProps> = ({ selectedId, onSelect, d
                   KES {Math.round(fare / 1.5)}
                 </div>
               )}
+              {waitMinutes > 0 && (
+                <div className="text-[10px] text-primary">+{waitMinutes * 5} wait</div>
+              )}
             </div>
           </motion.button>
         );
@@ -75,7 +81,7 @@ const RideCategories: React.FC<RideCategoriesProps> = ({ selectedId, onSelect, d
           onClick={onConfirm}
           className="w-full py-4 rounded-2xl brand-gradient text-primary-foreground font-bold text-sm transition-all active:scale-[0.98]"
         >
-          Request Ride
+          Customize & Request
         </motion.button>
       )}
     </motion.div>

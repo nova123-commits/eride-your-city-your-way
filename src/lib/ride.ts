@@ -29,17 +29,35 @@ export const RIDE_CATEGORIES = [
     eta: '1-3 min',
     capacity: '1 seat',
   },
+  {
+    id: 'electric',
+    name: 'eRide Electric',
+    description: 'Zero-emission EV rides',
+    baseRate: 180,
+    perKm: 35,
+    icon: '⚡',
+    eta: '4-7 min',
+    capacity: '4 seats',
+  },
 ] as const;
 
 export type RideCategory = (typeof RIDE_CATEGORIES)[number];
 
-export function calculateFare(category: RideCategory, distanceKm: number): number {
+export const WAITING_FEE_PER_MIN = 5; // KES
+
+export function calculateFare(
+  category: RideCategory,
+  distanceKm: number,
+  waitMinutes: number = 0,
+  isGoldMember: boolean = false
+): number {
   const now = new Date();
   const hour = now.getHours();
-  const isPeakHour = (hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19);
-  const surgeMultiplier = isPeakHour ? 1.5 : 1;
-  const fare = (category.baseRate + category.perKm * distanceKm) * surgeMultiplier;
-  return Math.round(fare);
+  const isPeak = (hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19);
+  const surgeMultiplier = isPeak && !isGoldMember ? 1.5 : 1;
+  const baseFare = (category.baseRate + category.perKm * distanceKm) * surgeMultiplier;
+  const waitingFee = waitMinutes * WAITING_FEE_PER_MIN;
+  return Math.round(baseFare + waitingFee);
 }
 
 export function isPeakHour(): boolean {
