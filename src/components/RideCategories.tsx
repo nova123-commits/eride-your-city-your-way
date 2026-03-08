@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Clock, Zap, Leaf } from 'lucide-react';
 import { RIDE_CATEGORIES, calculateFare, isPeakHour, WAITING_FEE_PER_MIN, type RideCategory } from '@/lib/ride';
 import AccessibilityToggles, { type AccessibilityPrefs } from '@/components/AccessibilityToggles';
+import VehicleAvatar from '@/components/VehicleAvatar';
 
 interface RideCategoriesProps {
   selectedId: string | null;
