@@ -145,6 +145,7 @@ const RiderHome: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <RiderSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
       <header className="flex items-center justify-between px-5 pt-4 pb-2 safe-top">
         <button onClick={() => setSidebarOpen(true)} className="w-10 h-10 rounded-xl glass-fab flex items-center justify-center btn-press">
           <Menu className="w-5 h-5 text-foreground" />
