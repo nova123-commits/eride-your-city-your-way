@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, MapPin, Crown } from 'lucide-react';
+import { Menu, MapPin, Crown, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ERideLogo from '@/components/ERideLogo';
 import DestinationInput from '@/components/DestinationInput';
@@ -11,6 +11,8 @@ import SearchingDriver from '@/components/SearchingDriver';
 import DriverMatched from '@/components/DriverMatched';
 import RatingModal from '@/components/RatingModal';
 import ImpactTracker from '@/components/ImpactTracker';
+import PinkModeToggle from '@/components/safety/PinkModeToggle';
+import SOSButton from '@/components/safety/SOSButton';
 import { RIDE_CATEGORIES, calculateFare, generateOTP, MOCK_DRIVER, type RideCategory } from '@/lib/ride';
 
 type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'rating';
@@ -23,6 +25,7 @@ const RiderHome: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<RideCategory | null>(null);
   const [otp, setOtp] = useState('');
   const [errandStop, setErrandStop] = useState<ErrandStopData | null>(null);
+  const [pinkMode, setPinkMode] = useState(false);
   const [ridePrefs, setRidePrefs] = useState<RidePrefs>({
     conversation: 'open',
     temperature: 'ac_low',
@@ -120,6 +123,7 @@ const RiderHome: React.FC = () => {
                 onAdd={setErrandStop}
                 onRemove={() => setErrandStop(null)}
               />
+              <PinkModeToggle enabled={pinkMode} onToggle={setPinkMode} />
             </div>
           )}
           {step === 'categories' && (

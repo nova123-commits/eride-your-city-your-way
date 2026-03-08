@@ -1,11 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Power, MapPin, Navigation, Clock, User, Star, Shield } from 'lucide-react';
 import ERideLogo from '@/components/ERideLogo';
 import RatingModal from '@/components/RatingModal';
+import DriverCredentials from '@/components/safety/DriverCredentials';
+import SelfieVerification from '@/components/safety/SelfieVerification';
+import SOSButton from '@/components/safety/SOSButton';
+import VerifiedBadge from '@/components/safety/VerifiedBadge';
 import { RIDE_CATEGORIES, calculateFare, generateOTP } from '@/lib/ride';
 
-type DriverStep = 'offline' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
+type DriverStep = 'offline' | 'selfie' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
 const DriverHome: React.FC = () => {
   const [step, setStep] = useState<DriverStep>('offline');
@@ -14,6 +18,7 @@ const DriverHome: React.FC = () => {
   const [correctOtp] = useState(generateOTP());
   const [otpError, setOtpError] = useState(false);
   const [earnings] = useState(4250);
+  const [showCredentials, setShowCredentials] = useState(false);
 
   // Simulate incoming request after going online
   useEffect(() => {
@@ -35,18 +40,22 @@ const DriverHome: React.FC = () => {
     }
   }, [step, countdown]);
 
-  const handleAccept = () => {
-    setStep('navigating');
+  const handleGoOnline = () => {
+    // Trigger selfie verification before going online
+    setStep('selfie');
   };
 
-  const handleDecline = () => {
+  const handleSelfieVerified = () => {
     setStep('online');
-    setCountdown(15);
   };
 
-  const handleArrived = () => {
-    setStep('otp');
+  const handleSelfieCancelled = () => {
+    setStep('offline');
   };
+
+  const handleAccept = () => setStep('navigating');
+  const handleDecline = () => { setStep('online'); setCountdown(15); };
+  const handleArrived = () => setStep('otp');
 
   const handleOtpSubmit = () => {
     if (otpInput === correctOtp) {
@@ -57,9 +66,7 @@ const DriverHome: React.FC = () => {
     }
   };
 
-  const handleFinishTrip = () => {
-    setStep('rating');
-  };
+  const handleFinishTrip = () => setStep('rating');
 
   const handleRatingSubmit = () => {
     setStep('online');
@@ -77,12 +84,40 @@ const DriverHome: React.FC = () => {
         <div className="flex items-center gap-2">
           <ERideLogo size="sm" />
           <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-accent text-accent-foreground">Driver</span>
+          <VerifiedBadge isVerified={true} size="md" />
         </div>
-        <div className="text-right">
-          <p className="text-xs text-muted-foreground">Today's earnings</p>
-          <p className="font-bold text-foreground">KES {earnings.toLocaleString()}</p>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowCredentials(!showCredentials)}
+            className="text-xs font-medium px-2 py-1 rounded-lg border border-[hsl(210,60%,85%)] text-[hsl(210,80%,50%)] bg-[hsl(210,60%,97%)] dark:border-[hsl(210,40%,25%)] dark:bg-[hsl(210,40%,12%)] btn-press"
+          >
+            Credentials
+          </button>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Today's earnings</p>
+            <p className="font-bold text-foreground">KES {earnings.toLocaleString()}</p>
+          </div>
         </div>
       </header>
+
+      {/* Credentials panel */}
+      <AnimatePresence>
+        {showCredentials && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="px-4 overflow-hidden"
+          >
+            <DriverCredentials
+              driverName="James Mwangi"
+              psvLicense="PSV-NRB-2024-4821"
+              expiryDate="Dec 15, 2026"
+              isVerified={true}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Map area */}
       <div className="flex-1 relative bg-secondary overflow-hidden">
@@ -100,6 +135,16 @@ const DriverHome: React.FC = () => {
         }} />
       </div>
 
+      {/* Selfie Verification overlay */}
+      <AnimatePresence>
+        {step === 'selfie' && (
+          <SelfieVerification
+            onVerified={handleSelfieVerified}
+            onCancel={handleSelfieCancelled}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Bottom panel */}
       <div className="px-4 pb-4 pt-3 safe-bottom bg-background">
         <AnimatePresence mode="wait">
@@ -107,7 +152,7 @@ const DriverHome: React.FC = () => {
           {(step === 'offline' || step === 'online') && (
             <motion.div key="toggle" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }}>
               <button
-                onClick={() => setStep(step === 'offline' ? 'online' : 'offline')}
+                onClick={() => step === 'offline' ? handleGoOnline() : setStep('offline')}
                 className={`w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 transition-all active:scale-[0.98] ${
                   step === 'online'
                     ? 'brand-gradient text-primary-foreground'
@@ -325,10 +370,7 @@ const DriverHome: React.FC = () => {
               </div>
 
               <div className="flex gap-3">
-                <button className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive/10 text-destructive font-medium text-sm">
-                  <Shield className="w-4 h-4" />
-                  SOS
-                </button>
+                <SOSButton floating={false} />
                 <button
                   onClick={handleFinishTrip}
                   className="flex-1 py-4 rounded-2xl brand-gradient text-primary-foreground font-bold text-sm active:scale-[0.98]"
