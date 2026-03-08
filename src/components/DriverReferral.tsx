@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 interface Referral {
   id: string;
   referral_code: string;
+  referred_id: string | null;
   status: string;
   trips_completed: number;
   bonus_paid: boolean;

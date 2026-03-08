@@ -140,6 +140,13 @@ const DriverHome: React.FC = () => {
         )}
       </AnimatePresence>
 
+      {/* Referral section - visible when offline */}
+      {step === 'offline' && (
+        <div className="px-4 py-3">
+          <DriverReferral />
+        </div>
+      )}
+
       {/* Bottom panel */}
       <div className="px-4 pb-4 pt-3 safe-bottom bg-background">
         <AnimatePresence mode="wait">
