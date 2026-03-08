@@ -63,7 +63,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchRole(session.user.id);
+          // Reset role to null before fetching to prevent stale data
+          setRole(null);
+          setRoleLoading(true);
+          const freshRole = await fetchRole(session.user.id);
+          console.log("[eRide Auth] onAuthStateChange -> role fetched:", freshRole, "for user:", session.user.id);
         } else {
           setRole(null);
           setRoleLoading(false);
@@ -78,7 +82,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchRole(session.user.id);
+        setRole(null);
+        setRoleLoading(true);
+        const freshRole = await fetchRole(session.user.id);
+        console.log("[eRide Auth] getSession -> role fetched:", freshRole, "for user:", session.user.id);
       } else {
         setRoleLoading(false);
       }
