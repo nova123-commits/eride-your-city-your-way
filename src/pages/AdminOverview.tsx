@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Shield, Users, Car, Clock, CheckCircle2, TrendingUp,
 } from "lucide-react";
+import AdminAnalytics from "@/components/AdminAnalytics";
 
 export default function AdminOverview() {
   const { user } = useAuth();
