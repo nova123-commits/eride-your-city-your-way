@@ -26,43 +26,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<AppRole | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchRole = async (userId: string) => {
+  const fetchRole = async (userId: string): Promise<AppRole> => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
       .limit(1)
       .single();
-    setRole((data?.role as AppRole) ?? "rider");
+    const r = (data?.role as AppRole) ?? "rider";
+    setRole(r);
+    return r;
   };
 
   useEffect(() => {
+    let mounted = true;
+
     // Set up listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        if (!mounted) return;
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          // Use setTimeout to avoid potential deadlock with Supabase auth
-          setTimeout(() => fetchRole(session.user.id), 0);
+          await fetchRole(session.user.id);
         } else {
           setRole(null);
         }
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     );
 
     // THEN check existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchRole(session.user.id);
+        await fetchRole(session.user.id);
       }
-      setLoading(false);
+      if (mounted) setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
