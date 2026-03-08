@@ -29,7 +29,7 @@ export default function Auth() {
     setLoading(true);
 
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -37,16 +37,15 @@ export default function Auth() {
             full_name: fullName,
             role: roleChoice,
           },
-          emailRedirectTo: window.location.origin,
         },
       });
       if (error) {
         toast({ title: "Signup failed", description: error.message, variant: "destructive" });
-      } else {
-        toast({
-          title: "Check your email",
-          description: "We sent you a confirmation link to verify your account.",
-        });
+      } else if (data.user) {
+        toast({ title: "Account created!", description: "Welcome to eRide." });
+        // Redirect based on chosen role
+        if (roleChoice === "driver") navigate("/driver", { replace: true });
+        else navigate("/rider", { replace: true });
       }
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
