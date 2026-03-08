@@ -287,6 +287,12 @@ const DriverHome: React.FC = () => {
                   <div><p className="text-xs text-muted-foreground">Your Take (83.5%)</p><p className="font-bold text-primary">KES {Math.round(fare * 0.835)}</p></div>
                 </div>
               </div>
+              <LiveProgressBar
+                pickup="Westlands Mall"
+                destination="JKIA Airport, Terminal 1"
+                totalDistanceKm={7.2}
+                etaMinutes={18}
+              />
               <div className="flex gap-3">
                 <SOSButton floating={false} />
                 <button onClick={handleFinishTrip} className="flex-1 py-4 rounded-2xl brand-gradient text-primary-foreground font-bold text-sm active:scale-[0.98]">Finish Trip</button>
