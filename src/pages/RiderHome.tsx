@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, MapPin, Crown, Clock } from 'lucide-react';
+import RiderSidebar from '@/components/RiderSidebar';
 import { useNavigate } from 'react-router-dom';
 import ERideLogo from '@/components/ERideLogo';
 import DestinationInput from '@/components/DestinationInput';
