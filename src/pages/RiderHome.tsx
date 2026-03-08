@@ -34,7 +34,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
-type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'payment' | 'receipt' | 'rating' | 'schedule';
+type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'inTrip' | 'tripSummary' | 'payment' | 'receipt' | 'rating' | 'schedule';
 
 const STOP_FEE = 40; // KES per stop (5 min wait)
 
