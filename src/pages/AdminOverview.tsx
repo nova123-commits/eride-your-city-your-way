@@ -88,6 +88,8 @@ export default function AdminOverview() {
 
         <AdminAnalytics />
 
+        <AdminSupportTickets />
+
         {stats.pendingVerifications > 0 && (
           <Card className="border-yellow-500/30 bg-yellow-500/5">
             <CardContent className="p-4 flex items-center gap-3">
