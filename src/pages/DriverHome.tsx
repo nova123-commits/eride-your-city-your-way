@@ -9,6 +9,7 @@ import SelfieVerification from '@/components/safety/SelfieVerification';
 import SOSButton from '@/components/safety/SOSButton';
 import VerifiedBadge from '@/components/safety/VerifiedBadge';
 import { RIDE_CATEGORIES, calculateFare, generateOTP } from '@/lib/ride';
+import RoleNav from '@/components/RoleNav';
 
 type DriverStep = 'offline' | 'selfie' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
