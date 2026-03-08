@@ -15,11 +15,8 @@ import PinkModeToggle from '@/components/safety/PinkModeToggle';
 import PaymentFlow from '@/components/payments/PaymentFlow';
 import DigitalReceipt from '@/components/payments/DigitalReceipt';
 import CurrencyToggle from '@/components/payments/CurrencyToggle';
-import { RIDE_CATEGORIES, calculateFare, generateOTP, MOCK_DRIVER, type RideCategory } from '@/lib/ride';
-import { calculateFareBreakdown, isPeakHour as checkPeak, formatCurrency, convertCurrency, type CurrencyCode } from '@/lib/currency';
-
-// Re-export isPeakHour from ride.ts
-import { isPeakHour } from '@/lib/ride';
+import { RIDE_CATEGORIES, calculateFare, generateOTP, MOCK_DRIVER, isPeakHour, type RideCategory } from '@/lib/ride';
+import { calculateFareBreakdown, formatCurrency, convertCurrency, type CurrencyCode } from '@/lib/currency';
 
 type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'payment' | 'receipt' | 'rating';
 
