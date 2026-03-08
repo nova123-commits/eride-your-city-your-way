@@ -162,7 +162,7 @@
   }
 
   .btn-press-deep {
-    @apply transition-all duration-100 active:scale-[0.93] active:brightness-85;
+    @apply transition-all duration-100 active:scale-[0.93] active:brightness-[0.85];
   }
 }
 
