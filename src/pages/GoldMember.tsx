@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Crown, Zap, Shield, Headphones, Star, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ERideLogo from '@/components/ERideLogo';
+import PrivacySettings from '@/components/PrivacySettings';
 
 const BENEFITS = [
   { icon: Zap, title: '0% Surge Pricing', desc: 'Never pay extra during peak hours' },
