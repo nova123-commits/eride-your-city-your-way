@@ -16,7 +16,7 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
       initial={{ y: '100%' }}
       animate={{ y: 0 }}
       transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-      className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border rounded-t-3xl p-5 safe-bottom"
+      className="fixed bottom-0 left-0 right-0 z-50 glass-bottom-sheet rounded-t-3xl p-5 safe-bottom"
     >
       {/* Handle */}
       <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-4" />
@@ -60,13 +60,13 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
       </div>
 
       {/* Vehicle info */}
-      <div className="bg-secondary rounded-xl p-3 mb-4">
+      <div className="bg-secondary/50 backdrop-blur-sm rounded-xl p-3 mb-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-foreground">{MOCK_DRIVER.vehicle}</p>
             <p className="text-xs text-muted-foreground">White · Sedan</p>
           </div>
-          <div className="px-3 py-1.5 rounded-lg bg-card border border-border">
+          <div className="px-3 py-1.5 rounded-lg glass-panel">
             <p className="font-bold text-sm text-foreground tracking-wider">{MOCK_DRIVER.plate}</p>
           </div>
         </div>
@@ -74,11 +74,11 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
 
       {/* Actions */}
       <div className="flex gap-3 mb-3">
-        <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary text-foreground font-medium text-sm">
+        <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary/50 backdrop-blur-sm text-foreground font-medium text-sm">
           <Phone className="w-4 h-4" />
           Call
         </button>
-        <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary text-foreground font-medium text-sm">
+        <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary/50 backdrop-blur-sm text-foreground font-medium text-sm">
           <MessageCircle className="w-4 h-4" />
           Message
         </button>
@@ -90,7 +90,7 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
 
       <button
         onClick={onCancel}
-        className="w-full py-3 rounded-xl border border-border text-muted-foreground font-medium text-sm"
+        className="w-full py-3 rounded-xl border border-border/50 text-muted-foreground font-medium text-sm"
       >
         Cancel ride
       </button>

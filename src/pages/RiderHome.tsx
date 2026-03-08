@@ -1,25 +1,38 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, MapPin, User } from 'lucide-react';
+import { Menu, MapPin, User, Crown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import ERideLogo from '@/components/ERideLogo';
 import DestinationInput from '@/components/DestinationInput';
 import RideCategories from '@/components/RideCategories';
+import RidePreferences, { type RidePrefs } from '@/components/RidePreferences';
+import ErrandStop, { type ErrandStopData } from '@/components/ErrandStop';
 import SearchingDriver from '@/components/SearchingDriver';
 import DriverMatched from '@/components/DriverMatched';
 import RatingModal from '@/components/RatingModal';
+import ImpactTracker from '@/components/ImpactTracker';
 import { RIDE_CATEGORIES, calculateFare, generateOTP, MOCK_DRIVER, type RideCategory } from '@/lib/ride';
 
-type RiderStep = 'home' | 'categories' | 'searching' | 'matched' | 'rating';
+type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'rating';
 
 const RiderHome: React.FC = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState<RiderStep>('home');
   const [pickup, setPickup] = useState('Current Location');
   const [destination, setDestination] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<RideCategory | null>(null);
   const [otp, setOtp] = useState('');
-  const distanceKm = 7.2; // mock distance
+  const [errandStop, setErrandStop] = useState<ErrandStopData | null>(null);
+  const [ridePrefs, setRidePrefs] = useState<RidePrefs>({
+    silentTrip: false,
+    acPreference: 'cool',
+    musicGenre: 'No Music',
+  });
+  const distanceKm = 7.2;
 
   const handleSearch = () => setStep('categories');
+
+  const handleCategoryConfirm = () => setStep('preferences');
 
   const handleRequestRide = () => {
     setOtp(generateOTP());
@@ -34,30 +47,36 @@ const RiderHome: React.FC = () => {
     setStep('home');
     setSelectedCategory(null);
     setDestination('');
+    setErrandStop(null);
   };
 
-  const handleTripComplete = () => {
-    setStep('rating');
-  };
+  const handleTripComplete = () => setStep('rating');
 
-  const handleRatingSubmit = (rating: number) => {
+  const handleRatingSubmit = (rating: number, isFavorite?: boolean) => {
+    // In a real app, save favorite to DB
     setStep('home');
     setSelectedCategory(null);
     setDestination('');
+    setErrandStop(null);
   };
 
-  const fare = selectedCategory ? calculateFare(selectedCategory, distanceKm) : 0;
+  const waitMinutes = errandStop?.waitMinutes ?? 0;
+  const fare = selectedCategory ? calculateFare(selectedCategory, distanceKm, waitMinutes) : 0;
+  const isElectric = selectedCategory?.id === 'electric';
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-5 pt-4 pb-2 safe-top">
-        <button className="w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center">
+        <button className="w-10 h-10 rounded-xl glass-panel flex items-center justify-center">
           <Menu className="w-5 h-5 text-foreground" />
         </button>
         <ERideLogo size="sm" />
-        <button className="w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center">
-          <User className="w-5 h-5 text-foreground" />
+        <button
+          onClick={() => navigate('/gold')}
+          className="w-10 h-10 rounded-xl glass-panel flex items-center justify-center"
+        >
+          <Crown className="w-5 h-5 text-yellow-500" />
         </button>
       </header>
 
@@ -69,45 +88,61 @@ const RiderHome: React.FC = () => {
             <p className="text-xs text-muted-foreground">Map view</p>
           </div>
         </div>
-        {/* Decorative grid */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }} />
 
-        {/* Simulate trip button when matched */}
         {step === 'matched' && (
           <motion.button
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={handleTripComplete}
-            className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold z-10"
+            className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl brand-gradient text-primary-foreground text-xs font-semibold z-10"
           >
             Simulate: Trip Complete
           </motion.button>
         )}
       </div>
 
-      {/* Bottom panel */}
-      <div className="px-4 pb-4 pt-3 safe-bottom bg-background space-y-3">
+      {/* Bottom panel - Glassmorphism */}
+      <div className="px-4 pb-4 pt-3 safe-bottom glass-bottom-sheet space-y-3">
         <AnimatePresence mode="wait">
           {step === 'home' && (
-            <DestinationInput
-              key="dest"
-              pickup={pickup}
-              destination={destination}
-              onPickupChange={setPickup}
-              onDestinationChange={setDestination}
-              onSearch={handleSearch}
-            />
+            <div key="dest" className="space-y-3">
+              <DestinationInput
+                pickup={pickup}
+                destination={destination}
+                onPickupChange={setPickup}
+                onDestinationChange={setDestination}
+                onSearch={handleSearch}
+              />
+              <ErrandStop
+                stop={errandStop}
+                onAdd={setErrandStop}
+                onRemove={() => setErrandStop(null)}
+              />
+            </div>
           )}
           {step === 'categories' && (
-            <RideCategories
-              key="cats"
-              selectedId={selectedCategory?.id ?? null}
-              onSelect={setSelectedCategory}
-              distanceKm={distanceKm}
+            <div key="cats" className="space-y-3">
+              <RideCategories
+                selectedId={selectedCategory?.id ?? null}
+                onSelect={setSelectedCategory}
+                distanceKm={distanceKm}
+                onConfirm={handleCategoryConfirm}
+                waitMinutes={waitMinutes}
+              />
+              {isElectric && <ImpactTracker distanceKm={distanceKm} />}
+            </div>
+          )}
+          {step === 'preferences' && selectedCategory && (
+            <RidePreferences
+              key="prefs"
+              prefs={ridePrefs}
+              onChange={setRidePrefs}
               onConfirm={handleRequestRide}
+              onBack={() => setStep('categories')}
             />
           )}
         </AnimatePresence>
