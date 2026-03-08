@@ -23,6 +23,9 @@ import HelpCenter from "./pages/HelpCenter";
 import SharedTrip from "./pages/SharedTrip";
 import DriverDashboard from "./pages/DriverDashboard";
 import AdminCommandCenter from "./pages/AdminCommandCenter";
+import TripsHistory from "./pages/TripsHistory";
+import SafetyCenter from "./pages/SafetyCenter";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,8 +55,11 @@ const App = () => {
             <Route path="/admin/approvals" element={<ProtectedRoute allowedRoles={["admin"]}><AdminApprovals /></ProtectedRoute>} />
             <Route path="/admin/tax" element={<ProtectedRoute allowedRoles={["admin"]}><TaxReport /></ProtectedRoute>} />
             <Route path="/admin/command" element={<ProtectedRoute allowedRoles={["admin"]}><AdminCommandCenter /></ProtectedRoute>} />
-            <Route path="/wallet" element={<ProtectedRoute allowedRoles={["driver"]}><WalletPage /></ProtectedRoute>} />
+            <Route path="/wallet" element={<ProtectedRoute><WalletPage /></ProtectedRoute>} />
             <Route path="/driver/dashboard" element={<ProtectedRoute allowedRoles={["driver"]}><DriverDashboard /></ProtectedRoute>} />
+            <Route path="/trips-history" element={<ProtectedRoute><TripsHistory /></ProtectedRoute>} />
+            <Route path="/safety-center" element={<ProtectedRoute><SafetyCenter /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="/drive-with-us" element={<DriveWithUs />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/terms" element={<Legal />} />
