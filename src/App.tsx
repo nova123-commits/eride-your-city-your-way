@@ -19,6 +19,7 @@ import DriveWithUs from "./pages/DriveWithUs";
 import Legal from "./pages/Legal";
 import HelpCenter from "./pages/HelpCenter";
 import SharedTrip from "./pages/SharedTrip";
+import DriverDashboard from "./pages/DriverDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
