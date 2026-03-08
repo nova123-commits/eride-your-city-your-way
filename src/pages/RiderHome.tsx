@@ -26,11 +26,15 @@ import { calculateFareBreakdown, formatCurrency, convertCurrency, type CurrencyC
 import RoleNav from '@/components/RoleNav';
 import PromoBanner from '@/components/PromoBanner';
 import RiderWaitlist from '@/components/RiderWaitlist';
+import LiveProgressBar from '@/components/trip/LiveProgressBar';
+import TripSummaryOverlay from '@/components/trip/TripSummaryOverlay';
+import PulseMapMarker from '@/components/trip/PulseMapMarker';
+import { downloadReceiptAsImage } from '@/lib/receiptGenerator';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
-type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'payment' | 'receipt' | 'rating' | 'schedule';
+type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'inTrip' | 'tripSummary' | 'payment' | 'receipt' | 'rating' | 'schedule';
 
 const STOP_FEE = 40; // KES per stop (5 min wait)
 
@@ -75,9 +79,26 @@ const RiderHome: React.FC = () => {
     setErrandStop(null);
   };
 
-  const handleTripComplete = () => setStep('payment');
+  const handleTripComplete = () => setStep('inTrip');
+  const handleInTripComplete = () => setStep('tripSummary');
+  const handleSummaryPayment = () => setStep('payment');
   const handlePaymentComplete = () => setStep('receipt');
   const handleReceiptDone = () => setStep('rating');
+
+  const handleDownloadReceipt = () => {
+    if (!fareBreakdown) return;
+    downloadReceiptAsImage({
+      tripId: 'TRP-2026-4821',
+      date: new Date().toLocaleDateString('en-KE', { dateStyle: 'full' }),
+      pickup,
+      dropoff: destination || 'JKIA Airport',
+      distance: `${distanceKm} km`,
+      duration: '18 min',
+      driverName: MOCK_DRIVER.name,
+      breakdown: fareBreakdown,
+      currency,
+    });
+  };
 
   const handleRatingSubmit = () => {
     setStep('home');
@@ -161,8 +182,31 @@ const RiderHome: React.FC = () => {
             onClick={handleTripComplete}
             className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl brand-gradient text-primary-foreground text-xs font-semibold z-10 btn-press"
           >
-            Simulate: Trip Complete
+            Simulate: Start Trip
           </motion.button>
+        )}
+
+        {step === 'inTrip' && (
+          <>
+            <motion.button
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={handleInTripComplete}
+              className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl brand-gradient text-primary-foreground text-xs font-semibold z-10 btn-press"
+            >
+              Simulate: Arrive
+            </motion.button>
+            {/* Pulsing map markers */}
+            <div className="absolute top-20 left-10">
+              <PulseMapMarker type="pickup" label="Pickup" />
+            </div>
+            <div className="absolute bottom-20 right-10">
+              <PulseMapMarker type="destination" label="Dropoff" />
+            </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <PulseMapMarker type="driver" />
+            </div>
+          </>
         )}
       </div>
 
@@ -239,6 +283,16 @@ const RiderHome: React.FC = () => {
               onCancel={() => setStep('preferences')}
             />
           )}
+          {step === 'inTrip' && selectedCategory && (
+            <div key="intrip" className="space-y-3">
+              <LiveProgressBar
+                pickup={pickup}
+                destination={destination || 'JKIA Airport'}
+                totalDistanceKm={distanceKm}
+                etaMinutes={18}
+              />
+            </div>
+          )}
           {step === 'receipt' && fareBreakdown && (
             <motion.div key="receipt" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
               <DigitalReceipt
@@ -251,12 +305,20 @@ const RiderHome: React.FC = () => {
                 distance={`${distanceKm} km`}
                 driverName={MOCK_DRIVER.name}
               />
-              <button
-                onClick={handleReceiptDone}
-                className="w-full py-3.5 rounded-xl brand-gradient text-primary-foreground font-bold text-sm btn-press"
-              >
-                Rate Your Ride
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDownloadReceipt}
+                  className="flex-1 py-3.5 rounded-xl border border-border text-foreground font-bold text-sm btn-press flex items-center justify-center gap-2"
+                >
+                  📥 Download Receipt
+                </button>
+                <button
+                  onClick={handleReceiptDone}
+                  className="flex-1 py-3.5 rounded-xl brand-gradient text-primary-foreground font-bold text-sm btn-press"
+                >
+                  Rate Your Ride
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -296,6 +358,23 @@ const RiderHome: React.FC = () => {
             currency={currency === 'KES' ? 'KES' : '$'}
             onPaymentComplete={handlePaymentComplete}
             onCancel={() => setStep('matched')}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {step === 'tripSummary' && selectedCategory && (
+          <TripSummaryOverlay
+            key="summary"
+            pickup={pickup}
+            destination={destination || 'JKIA Airport'}
+            distanceKm={distanceKm}
+            durationMinutes={18}
+            categoryId={selectedCategory.id}
+            fare={fare}
+            currency={currency === 'KES' ? 'KES' : '$'}
+            onContinue={handleSummaryPayment}
+            onDownloadReceipt={handleDownloadReceipt}
           />
         )}
       </AnimatePresence>

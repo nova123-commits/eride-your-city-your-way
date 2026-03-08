@@ -13,6 +13,8 @@ import RoleNav from '@/components/RoleNav';
 import DriverReferral from '@/components/DriverReferral';
 import DriverDemandHeatmap from '@/components/driver/DriverDemandHeatmap';
 import HomeDestinationFilter from '@/components/driver/HomeDestinationFilter';
+import LiveProgressBar from '@/components/trip/LiveProgressBar';
+import PulseMapMarker from '@/components/trip/PulseMapMarker';
 
 type DriverStep = 'offline' | 'selfie' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
@@ -142,6 +144,21 @@ const DriverHome: React.FC = () => {
 
         {/* Demand heatmap overlay — visible when online */}
         {(step === 'online' || step === 'request') && <DriverDemandHeatmap />}
+
+        {/* Pulse markers during active trip */}
+        {step === 'trip' && (
+          <>
+            <div className="absolute top-20 left-8">
+              <PulseMapMarker type="pickup" label="Pickup" />
+            </div>
+            <div className="absolute bottom-24 right-8">
+              <PulseMapMarker type="destination" label="Dropoff" />
+            </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <PulseMapMarker type="driver" />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Selfie Verification */}
@@ -270,6 +287,12 @@ const DriverHome: React.FC = () => {
                   <div><p className="text-xs text-muted-foreground">Your Take (83.5%)</p><p className="font-bold text-primary">KES {Math.round(fare * 0.835)}</p></div>
                 </div>
               </div>
+              <LiveProgressBar
+                pickup="Westlands Mall"
+                destination="JKIA Airport, Terminal 1"
+                totalDistanceKm={7.2}
+                etaMinutes={18}
+              />
               <div className="flex gap-3">
                 <SOSButton floating={false} />
                 <button onClick={handleFinishTrip} className="flex-1 py-4 rounded-2xl brand-gradient text-primary-foreground font-bold text-sm active:scale-[0.98]">Finish Trip</button>
