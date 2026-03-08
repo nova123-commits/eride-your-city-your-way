@@ -18,6 +18,7 @@ import WalletPage from "./pages/WalletPage";
 import DriveWithUs from "./pages/DriveWithUs";
 import Legal from "./pages/Legal";
 import HelpCenter from "./pages/HelpCenter";
+import SharedTrip from "./pages/SharedTrip";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/legal" element={<Legal />} />
             <Route path="/terms" element={<Legal />} />
             <Route path="/help" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
+            <Route path="/trip/:token" element={<SharedTrip />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

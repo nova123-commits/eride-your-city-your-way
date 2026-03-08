@@ -1,6 +1,7 @@
 import React from 'react';
 import { MapPin, Navigation } from 'lucide-react';
 import { motion } from 'framer-motion';
+import MultiStopInput from './MultiStopInput';
 
 interface DestinationInputProps {
   pickup: string;
@@ -8,6 +9,8 @@ interface DestinationInputProps {
   onPickupChange: (val: string) => void;
   onDestinationChange: (val: string) => void;
   onSearch: () => void;
+  stops?: string[];
+  onStopsChange?: (stops: string[]) => void;
 }
 
 const DestinationInput: React.FC<DestinationInputProps> = ({
@@ -16,6 +19,8 @@ const DestinationInput: React.FC<DestinationInputProps> = ({
   onPickupChange,
   onDestinationChange,
   onSearch,
+  stops = [],
+  onStopsChange,
 }) => {
   return (
     <motion.div
@@ -46,6 +51,11 @@ const DestinationInput: React.FC<DestinationInputProps> = ({
           />
         </div>
       </div>
+
+      {onStopsChange && (
+        <MultiStopInput stops={stops} onStopsChange={onStopsChange} />
+      )}
+
       {destination.length > 2 && (
         <motion.button
           initial={{ opacity: 0, scale: 0.95 }}

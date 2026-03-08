@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, MapPin, Crown } from 'lucide-react';
+import { Menu, MapPin, Crown, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ERideLogo from '@/components/ERideLogo';
 import DestinationInput from '@/components/DestinationInput';
@@ -15,24 +15,37 @@ import PinkModeToggle from '@/components/safety/PinkModeToggle';
 import PaymentFlow from '@/components/payments/PaymentFlow';
 import DigitalReceipt from '@/components/payments/DigitalReceipt';
 import CurrencyToggle from '@/components/payments/CurrencyToggle';
+import SavedPlaces from '@/components/SavedPlaces';
+import ScheduleRide from '@/components/ScheduleRide';
+import LiveTripShare from '@/components/LiveTripShare';
+import { type AccessibilityPrefs } from '@/components/AccessibilityToggles';
 import { RIDE_CATEGORIES, calculateFare, generateOTP, MOCK_DRIVER, isPeakHour, type RideCategory } from '@/lib/ride';
 import { calculateFareBreakdown, formatCurrency, convertCurrency, type CurrencyCode } from '@/lib/currency';
 import RoleNav from '@/components/RoleNav';
 import PromoBanner from '@/components/PromoBanner';
 import RiderWaitlist from '@/components/RiderWaitlist';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
-type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'payment' | 'receipt' | 'rating';
+type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'payment' | 'receipt' | 'rating' | 'schedule';
+
+const STOP_FEE = 40; // KES per stop (5 min wait)
 
 const RiderHome: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [step, setStep] = useState<RiderStep>('home');
   const [pickup, setPickup] = useState('Current Location');
   const [destination, setDestination] = useState('');
+  const [additionalStops, setAdditionalStops] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<RideCategory | null>(null);
   const [otp, setOtp] = useState('');
   const [errandStop, setErrandStop] = useState<ErrandStopData | null>(null);
   const [pinkMode, setPinkMode] = useState(false);
   const [currency, setCurrency] = useState<CurrencyCode>('KES');
+  const [accessibilityPrefs, setAccessibilityPrefs] = useState<AccessibilityPrefs>({ wheelchair: false, extraLuggage: false });
   const [ridePrefs, setRidePrefs] = useState<RidePrefs>({
     conversation: 'open',
     temperature: 'ac_low',
@@ -56,6 +69,7 @@ const RiderHome: React.FC = () => {
     setStep('home');
     setSelectedCategory(null);
     setDestination('');
+    setAdditionalStops([]);
     setErrandStop(null);
   };
 
@@ -63,15 +77,39 @@ const RiderHome: React.FC = () => {
   const handlePaymentComplete = () => setStep('receipt');
   const handleReceiptDone = () => setStep('rating');
 
-  const handleRatingSubmit = (rating: number, isFavorite?: boolean) => {
+  const handleRatingSubmit = () => {
     setStep('home');
     setSelectedCategory(null);
     setDestination('');
+    setAdditionalStops([]);
     setErrandStop(null);
   };
 
+  const handleScheduleRide = async (scheduledAt: Date) => {
+    if (!user || !selectedCategory) return;
+    const { error } = await supabase.from('scheduled_trips').insert({
+      user_id: user.id,
+      pickup,
+      destination: destination || 'JKIA Airport',
+      stops: additionalStops.filter(s => s.length > 0),
+      category_id: selectedCategory.id,
+      scheduled_at: scheduledAt.toISOString(),
+    });
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Ride Scheduled!', description: `Pickup at ${scheduledAt.toLocaleString('en-KE')}` });
+      setStep('home');
+    }
+  };
+
+  const handleSavedPlaceSelect = (address: string) => {
+    setDestination(address);
+  };
+
   const waitMinutes = errandStop?.waitMinutes ?? 0;
-  const fare = selectedCategory ? calculateFare(selectedCategory, distanceKm, waitMinutes) : 0;
+  const stopsFee = additionalStops.filter(s => s.length > 0).length * STOP_FEE;
+  const fare = selectedCategory ? calculateFare(selectedCategory, distanceKm, waitMinutes) + stopsFee : 0;
   const isElectric = selectedCategory?.id === 'electric';
 
   const fareBreakdown = selectedCategory
@@ -82,7 +120,6 @@ const RiderHome: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
       <header className="flex items-center justify-between px-5 pt-4 pb-2 safe-top">
         <button className="w-10 h-10 rounded-xl glass-fab flex items-center justify-center btn-press">
           <Menu className="w-5 h-5 text-foreground" />
@@ -103,7 +140,6 @@ const RiderHome: React.FC = () => {
 
       <PromoBanner />
 
-      {/* Map placeholder */}
       <div className="flex-1 relative bg-secondary overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
@@ -128,17 +164,19 @@ const RiderHome: React.FC = () => {
         )}
       </div>
 
-      {/* Bottom panel */}
       <div className="px-4 pb-4 pt-3 safe-bottom glass-bottom-sheet space-y-3">
         <AnimatePresence mode="wait">
           {step === 'home' && (
             <div key="dest" className="space-y-3">
+              <SavedPlaces onSelect={handleSavedPlaceSelect} />
               <DestinationInput
                 pickup={pickup}
                 destination={destination}
                 onPickupChange={setPickup}
                 onDestinationChange={setDestination}
                 onSearch={handleSearch}
+                stops={additionalStops}
+                onStopsChange={setAdditionalStops}
               />
               <ErrandStop
                 stop={errandStop}
@@ -157,17 +195,39 @@ const RiderHome: React.FC = () => {
                 distanceKm={distanceKm}
                 onConfirm={handleCategoryConfirm}
                 waitMinutes={waitMinutes}
+                accessibilityPrefs={accessibilityPrefs}
+                onAccessibilityChange={setAccessibilityPrefs}
               />
               {isElectric && <ImpactTracker distanceKm={distanceKm} />}
+              {additionalStops.filter(s => s.length > 0).length > 0 && (
+                <div className="text-xs text-muted-foreground px-1">
+                  +KES {stopsFee} for {additionalStops.filter(s => s.length > 0).length} additional stop(s)
+                </div>
+              )}
             </div>
           )}
           {step === 'preferences' && selectedCategory && (
-            <RidePreferences
-              key="prefs"
-              prefs={ridePrefs}
-              onChange={setRidePrefs}
-              onConfirm={handleRequestRide}
-              onBack={() => setStep('categories')}
+            <div key="prefs" className="space-y-3">
+              <RidePreferences
+                prefs={ridePrefs}
+                onChange={setRidePrefs}
+                onConfirm={handleRequestRide}
+                onBack={() => setStep('categories')}
+              />
+              <button
+                onClick={() => setStep('schedule')}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border text-sm font-medium text-foreground hover:border-primary/40 transition-all btn-press"
+              >
+                <Clock className="w-4 h-4 text-primary" />
+                Schedule for Later
+              </button>
+            </div>
+          )}
+          {step === 'schedule' && selectedCategory && (
+            <ScheduleRide
+              key="schedule"
+              onSchedule={handleScheduleRide}
+              onCancel={() => setStep('preferences')}
             />
           )}
           {step === 'receipt' && fareBreakdown && (
@@ -193,7 +253,6 @@ const RiderHome: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Overlays */}
       <AnimatePresence>
         {step === 'searching' && (
           <SearchingDriver key="searching" onFound={handleDriverFound} />
@@ -201,12 +260,23 @@ const RiderHome: React.FC = () => {
       </AnimatePresence>
 
       {step === 'matched' && selectedCategory && (
-        <DriverMatched
-          otp={otp}
-          onCancel={handleCancelRide}
-          category={selectedCategory.name}
-          fare={displayFare}
-        />
+        <div className="space-y-2">
+          <DriverMatched
+            otp={otp}
+            onCancel={handleCancelRide}
+            category={selectedCategory.name}
+            fare={displayFare}
+          />
+          <div className="px-4 pb-2 space-y-2">
+            <LiveTripShare
+              pickup={pickup}
+              destination={destination || 'JKIA Airport'}
+              driverName={MOCK_DRIVER.name}
+              vehicle={MOCK_DRIVER.vehicle}
+              plate={MOCK_DRIVER.plate}
+            />
+          </div>
+        </div>
       )}
 
       <AnimatePresence>
