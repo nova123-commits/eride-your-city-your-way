@@ -79,9 +79,26 @@ const RiderHome: React.FC = () => {
     setErrandStop(null);
   };
 
-  const handleTripComplete = () => setStep('payment');
+  const handleTripComplete = () => setStep('inTrip');
+  const handleInTripComplete = () => setStep('tripSummary');
+  const handleSummaryPayment = () => setStep('payment');
   const handlePaymentComplete = () => setStep('receipt');
   const handleReceiptDone = () => setStep('rating');
+
+  const handleDownloadReceipt = () => {
+    if (!fareBreakdown) return;
+    downloadReceiptAsImage({
+      tripId: 'TRP-2026-4821',
+      date: new Date().toLocaleDateString('en-KE', { dateStyle: 'full' }),
+      pickup,
+      dropoff: destination || 'JKIA Airport',
+      distance: `${distanceKm} km`,
+      duration: '18 min',
+      driverName: MOCK_DRIVER.name,
+      breakdown: fareBreakdown,
+      currency,
+    });
+  };
 
   const handleRatingSubmit = () => {
     setStep('home');
