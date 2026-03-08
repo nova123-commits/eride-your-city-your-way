@@ -20,6 +20,7 @@ import Legal from "./pages/Legal";
 import HelpCenter from "./pages/HelpCenter";
 import SharedTrip from "./pages/SharedTrip";
 import DriverDashboard from "./pages/DriverDashboard";
+import AdminCommandCenter from "./pages/AdminCommandCenter";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
