@@ -17,6 +17,7 @@ import DigitalReceipt from '@/components/payments/DigitalReceipt';
 import CurrencyToggle from '@/components/payments/CurrencyToggle';
 import { RIDE_CATEGORIES, calculateFare, generateOTP, MOCK_DRIVER, isPeakHour, type RideCategory } from '@/lib/ride';
 import { calculateFareBreakdown, formatCurrency, convertCurrency, type CurrencyCode } from '@/lib/currency';
+import RoleNav from '@/components/RoleNav';
 
 type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'payment' | 'receipt' | 'rating';
 
@@ -222,6 +223,7 @@ const RiderHome: React.FC = () => {
           onSubmit={handleRatingSubmit}
         />
       )}
+      <RoleNav />
     </div>
   );
 };
