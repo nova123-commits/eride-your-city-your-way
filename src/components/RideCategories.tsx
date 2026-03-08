@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Zap, Leaf } from 'lucide-react';
-import { RIDE_CATEGORIES, calculateFare, isPeakHour, type RideCategory } from '@/lib/ride';
+import { RIDE_CATEGORIES, calculateFare, isPeakHour, WAITING_FEE_PER_MIN, type RideCategory } from '@/lib/ride';
 
 interface RideCategoriesProps {
   selectedId: string | null;
@@ -39,13 +39,19 @@ const RideCategories: React.FC<RideCategoriesProps> = ({ selectedId, onSelect, d
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: i * 0.08 }}
             onClick={() => onSelect(cat)}
-            className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all active:scale-[0.98] ${
+            className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all btn-press ${
               isSelected
                 ? 'border-primary bg-accent glass-panel'
                 : 'border-border bg-card hover:border-primary/30'
             }`}
           >
-            <span className="text-3xl">{cat.icon}</span>
+            <motion.span
+              className="text-3xl"
+              animate={isSelected ? { y: [0, -6, -3, 0] } : {}}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
+              {cat.icon}
+            </motion.span>
             <div className="flex-1 text-left">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-foreground">{cat.name}</span>
@@ -67,7 +73,7 @@ const RideCategories: React.FC<RideCategoriesProps> = ({ selectedId, onSelect, d
                 </div>
               )}
               {waitMinutes > 0 && (
-                <div className="text-[10px] text-primary">+{waitMinutes * 5} wait</div>
+                <div className="text-[10px] text-primary">+{waitMinutes * WAITING_FEE_PER_MIN} wait</div>
               )}
             </div>
           </motion.button>
@@ -79,7 +85,7 @@ const RideCategories: React.FC<RideCategoriesProps> = ({ selectedId, onSelect, d
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={onConfirm}
-          className="w-full py-4 rounded-2xl brand-gradient text-primary-foreground font-bold text-sm transition-all active:scale-[0.98]"
+          className="w-full py-4 rounded-2xl brand-gradient text-primary-foreground font-bold text-sm btn-press-deep"
         >
           Customize & Request
         </motion.button>
