@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function AdminOverview() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalDrivers: 0,
     totalRiders: 0,
