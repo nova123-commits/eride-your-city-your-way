@@ -86,6 +86,12 @@ const DriverHome: React.FC = () => {
             Credentials
           </button>
           <button
+            onClick={() => navigate('/driver/dashboard')}
+            className="w-9 h-9 rounded-xl glass-fab flex items-center justify-center btn-press"
+          >
+            <BarChart3 className="w-4 h-4 text-primary" />
+          </button>
+          <button
             onClick={() => navigate('/wallet')}
             className="w-9 h-9 rounded-xl glass-fab flex items-center justify-center btn-press"
           >
