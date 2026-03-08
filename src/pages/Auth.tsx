@@ -162,7 +162,24 @@ export default function Auth() {
           />
         </div>
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        {mode === "signup" && (
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-border accent-primary"
+            />
+            <span className="text-xs text-muted-foreground leading-relaxed">
+              I agree to the eRide{" "}
+              <Link to="/legal" className="text-primary font-medium hover:underline">Terms of Service</Link>
+              {" "}and{" "}
+              <Link to="/legal" className="text-primary font-medium hover:underline">Privacy Policy</Link>
+            </span>
+          </label>
+        )}
+
+        <Button type="submit" className="w-full" disabled={loading || (mode === "signup" && !agreedToTerms)}>
           {loading ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
         </Button>
 

@@ -75,6 +75,12 @@ const GoldMember: React.FC = () => {
         ))}
       </div>
 
+      {/* Privacy & Data Settings */}
+      <div className="px-5 mt-6">
+        <h2 className="text-base font-bold text-foreground mb-3">Privacy & Data</h2>
+        <PrivacySettings />
+      </div>
+
       {/* Pricing */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

@@ -40,6 +40,7 @@ const App = () => (
             <Route path="/admin/tax" element={<ProtectedRoute allowedRoles={["admin"]}><TaxReport /></ProtectedRoute>} />
             <Route path="/wallet" element={<ProtectedRoute allowedRoles={["driver"]}><WalletPage /></ProtectedRoute>} />
             <Route path="/drive-with-us" element={<DriveWithUs />} />
+            <Route path="/legal" element={<Legal />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
