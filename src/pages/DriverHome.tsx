@@ -13,6 +13,8 @@ import RoleNav from '@/components/RoleNav';
 import DriverReferral from '@/components/DriverReferral';
 import DriverDemandHeatmap from '@/components/driver/DriverDemandHeatmap';
 import HomeDestinationFilter from '@/components/driver/HomeDestinationFilter';
+import LiveProgressBar from '@/components/trip/LiveProgressBar';
+import PulseMapMarker from '@/components/trip/PulseMapMarker';
 
 type DriverStep = 'offline' | 'selfie' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
