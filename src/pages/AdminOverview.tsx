@@ -10,9 +10,13 @@ import {
 } from "lucide-react";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminSupportTickets from "@/components/support/AdminSupportTickets";
+import { Button } from "@/components/ui/button";
+import { Crosshair } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminOverview() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalDrivers: 0,
     totalRiders: 0,
@@ -69,7 +73,10 @@ export default function AdminOverview() {
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Admin Overview</h1>
-          <p className="text-sm text-muted-foreground mt-1">Platform health at a glance.</p>
+        <p className="text-sm text-muted-foreground mt-1">Platform health at a glance.</p>
+          <Button variant="outline" size="sm" className="mt-2 gap-2" onClick={() => navigate("/admin/command")}>
+            <Crosshair className="w-4 h-4" /> Command Center
+          </Button>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
