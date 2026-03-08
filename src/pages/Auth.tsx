@@ -22,6 +22,7 @@ export default function Auth() {
   const [fullName, setFullName] = useState("");
   const [roleChoice, setRoleChoice] = useState<RoleChoice>("rider");
   const [loading, setLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
