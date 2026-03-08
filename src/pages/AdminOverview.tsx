@@ -9,6 +9,7 @@ import {
   Shield, Users, Car, Clock, CheckCircle2, TrendingUp,
 } from "lucide-react";
 import AdminAnalytics from "@/components/AdminAnalytics";
+import AdminSupportTickets from "@/components/support/AdminSupportTickets";
 
 export default function AdminOverview() {
   const { user } = useAuth();
@@ -86,6 +87,8 @@ export default function AdminOverview() {
         </div>
 
         <AdminAnalytics />
+
+        <AdminSupportTickets />
 
         {stats.pendingVerifications > 0 && (
           <Card className="border-yellow-500/30 bg-yellow-500/5">

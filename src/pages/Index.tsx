@@ -89,6 +89,8 @@ const Index: React.FC = () => {
           <span className="text-muted-foreground">·</span>
           <Link to="/legal" className="text-primary hover:underline">Privacy</Link>
           <span className="text-muted-foreground">·</span>
+          <Link to="/help" className="text-primary hover:underline">Help</Link>
+          <span className="text-muted-foreground">·</span>
           <Link to="/drive-with-us" className="text-primary hover:underline">Drive with us</Link>
         </div>
       </motion.footer>
