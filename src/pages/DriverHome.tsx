@@ -11,6 +11,8 @@ import VerifiedBadge from '@/components/safety/VerifiedBadge';
 import { RIDE_CATEGORIES, calculateFare, generateOTP } from '@/lib/ride';
 import RoleNav from '@/components/RoleNav';
 import DriverReferral from '@/components/DriverReferral';
+import DriverDemandHeatmap from '@/components/driver/DriverDemandHeatmap';
+import HomeDestinationFilter from '@/components/driver/HomeDestinationFilter';
 
 type DriverStep = 'offline' | 'selfie' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
