@@ -1,7 +1,7 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Car, Bike } from 'lucide-react';
+import { Car, Bike, MessageCircle } from 'lucide-react';
 import ERideLogo from '@/components/ERideLogo';
 
 const Index: React.FC = () => {
