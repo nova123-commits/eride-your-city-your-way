@@ -43,7 +43,7 @@ export const RIDE_CATEGORIES = [
 
 export type RideCategory = (typeof RIDE_CATEGORIES)[number];
 
-export const WAITING_FEE_PER_MIN = 5; // KES
+export const WAITING_FEE_PER_MIN = 8; // KES per minute
 
 export function calculateFare(
   category: RideCategory,

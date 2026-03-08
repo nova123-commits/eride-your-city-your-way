@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, MapPin, User, Crown } from 'lucide-react';
+import { Menu, MapPin, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ERideLogo from '@/components/ERideLogo';
 import DestinationInput from '@/components/DestinationInput';
@@ -24,14 +24,13 @@ const RiderHome: React.FC = () => {
   const [otp, setOtp] = useState('');
   const [errandStop, setErrandStop] = useState<ErrandStopData | null>(null);
   const [ridePrefs, setRidePrefs] = useState<RidePrefs>({
-    silentTrip: false,
-    acPreference: 'cool',
-    musicGenre: 'No Music',
+    conversation: 'open',
+    temperature: 'ac_low',
+    musicGenre: 'None',
   });
   const distanceKm = 7.2;
 
   const handleSearch = () => setStep('categories');
-
   const handleCategoryConfirm = () => setStep('preferences');
 
   const handleRequestRide = () => {
@@ -53,7 +52,6 @@ const RiderHome: React.FC = () => {
   const handleTripComplete = () => setStep('rating');
 
   const handleRatingSubmit = (rating: number, isFavorite?: boolean) => {
-    // In a real app, save favorite to DB
     setStep('home');
     setSelectedCategory(null);
     setDestination('');
@@ -68,13 +66,13 @@ const RiderHome: React.FC = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-5 pt-4 pb-2 safe-top">
-        <button className="w-10 h-10 rounded-xl glass-panel flex items-center justify-center">
+        <button className="w-10 h-10 rounded-xl glass-fab flex items-center justify-center btn-press">
           <Menu className="w-5 h-5 text-foreground" />
         </button>
         <ERideLogo size="sm" />
         <button
           onClick={() => navigate('/gold')}
-          className="w-10 h-10 rounded-xl glass-panel flex items-center justify-center"
+          className="w-10 h-10 rounded-xl glass-fab flex items-center justify-center btn-press"
         >
           <Crown className="w-5 h-5 text-yellow-500" />
         </button>
@@ -98,7 +96,7 @@ const RiderHome: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={handleTripComplete}
-            className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl brand-gradient text-primary-foreground text-xs font-semibold z-10"
+            className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl brand-gradient text-primary-foreground text-xs font-semibold z-10 btn-press"
           >
             Simulate: Trip Complete
           </motion.button>

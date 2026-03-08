@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Phone, MessageCircle, Shield } from 'lucide-react';
+import { Star, Phone, MessageCircle, Shield, CheckCircle2 } from 'lucide-react';
 import { MOCK_DRIVER } from '@/lib/ride';
+import { toast } from 'sonner';
 
 interface DriverMatchedProps {
   otp: string;
@@ -11,6 +12,13 @@ interface DriverMatchedProps {
 }
 
 const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, fare }) => {
+  useEffect(() => {
+    toast.success('Driver matched! 🎉', {
+      description: `${MOCK_DRIVER.name} is on the way`,
+      icon: <CheckCircle2 className="w-5 h-5 text-primary" />,
+    });
+  }, []);
+
   return (
     <motion.div
       initial={{ y: '100%' }}
@@ -21,6 +29,17 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
       {/* Handle */}
       <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-4" />
 
+      {/* Success badge */}
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: 'spring', delay: 0.2 }}
+        className="flex items-center justify-center gap-2 mb-4 py-2 px-4 rounded-full bg-primary/10 mx-auto w-fit"
+      >
+        <CheckCircle2 className="w-4 h-4 text-primary" />
+        <span className="text-xs font-semibold text-primary">Ride Matched</span>
+      </motion.div>
+
       {/* OTP */}
       <div className="text-center mb-4">
         <p className="text-xs text-muted-foreground mb-1">Share this PIN with your driver</p>
@@ -28,9 +47,9 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
           {otp.split('').map((digit, i) => (
             <motion.span
               key={i}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: i * 0.1 }}
+              initial={{ scale: 0, rotateY: 90 }}
+              animate={{ scale: 1, rotateY: 0 }}
+              transition={{ delay: 0.3 + i * 0.1, type: 'spring' }}
               className="w-12 h-14 rounded-xl bg-accent flex items-center justify-center text-2xl font-bold text-accent-foreground"
             >
               {digit}
@@ -41,9 +60,14 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
 
       {/* Driver info */}
       <div className="flex items-center gap-4 mb-4">
-        <div className="w-14 h-14 rounded-full brand-gradient flex items-center justify-center text-2xl font-bold text-primary-foreground">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', delay: 0.15 }}
+          className="w-14 h-14 rounded-full brand-gradient flex items-center justify-center text-2xl font-bold text-primary-foreground"
+        >
           {MOCK_DRIVER.name[0]}
-        </div>
+        </motion.div>
         <div className="flex-1">
           <h3 className="font-semibold text-foreground">{MOCK_DRIVER.name}</h3>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -60,13 +84,13 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
       </div>
 
       {/* Vehicle info */}
-      <div className="bg-secondary/50 backdrop-blur-sm rounded-xl p-3 mb-4">
+      <div className="rounded-xl glass-panel p-3 mb-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-foreground">{MOCK_DRIVER.vehicle}</p>
             <p className="text-xs text-muted-foreground">White · Sedan</p>
           </div>
-          <div className="px-3 py-1.5 rounded-lg glass-panel">
+          <div className="px-3 py-1.5 rounded-lg glass-fab">
             <p className="font-bold text-sm text-foreground tracking-wider">{MOCK_DRIVER.plate}</p>
           </div>
         </div>
@@ -74,15 +98,15 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
 
       {/* Actions */}
       <div className="flex gap-3 mb-3">
-        <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary/50 backdrop-blur-sm text-foreground font-medium text-sm">
+        <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl glass-fab text-foreground font-medium text-sm btn-press">
           <Phone className="w-4 h-4" />
           Call
         </button>
-        <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary/50 backdrop-blur-sm text-foreground font-medium text-sm">
+        <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl glass-fab text-foreground font-medium text-sm btn-press">
           <MessageCircle className="w-4 h-4" />
           Message
         </button>
-        <button className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive/10 text-destructive font-medium text-sm">
+        <button className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive/10 text-destructive font-medium text-sm btn-press">
           <Shield className="w-4 h-4" />
           SOS
         </button>
@@ -90,7 +114,7 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
 
       <button
         onClick={onCancel}
-        className="w-full py-3 rounded-xl border border-border/50 text-muted-foreground font-medium text-sm"
+        className="w-full py-3 rounded-xl border border-border/50 text-muted-foreground font-medium text-sm btn-press"
       >
         Cancel ride
       </button>
