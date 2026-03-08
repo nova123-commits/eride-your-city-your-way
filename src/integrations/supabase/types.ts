@@ -104,6 +104,105 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_addresses: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          label: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: string
+          label?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          label?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      scheduled_trips: {
+        Row: {
+          category_id: string
+          created_at: string
+          destination: string
+          id: string
+          pickup: string
+          scheduled_at: string
+          status: string
+          stops: Json | null
+          user_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          destination: string
+          id?: string
+          pickup: string
+          scheduled_at: string
+          status?: string
+          stops?: Json | null
+          user_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          destination?: string
+          id?: string
+          pickup?: string
+          scheduled_at?: string
+          status?: string
+          stops?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      shared_trips: {
+        Row: {
+          created_at: string
+          destination: string
+          driver_name: string | null
+          id: string
+          is_active: boolean
+          pickup: string
+          plate: string | null
+          share_token: string
+          user_id: string
+          vehicle: string | null
+        }
+        Insert: {
+          created_at?: string
+          destination: string
+          driver_name?: string | null
+          id?: string
+          is_active?: boolean
+          pickup: string
+          plate?: string | null
+          share_token: string
+          user_id: string
+          vehicle?: string | null
+        }
+        Update: {
+          created_at?: string
+          destination?: string
+          driver_name?: string | null
+          id?: string
+          is_active?: boolean
+          pickup?: string
+          plate?: string | null
+          share_token?: string
+          user_id?: string
+          vehicle?: string | null
+        }
+        Relationships: []
+      }
       support_messages: {
         Row: {
           content: string
