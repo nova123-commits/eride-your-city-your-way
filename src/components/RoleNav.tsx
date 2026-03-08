@@ -1,7 +1,8 @@
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
-  MapPin, History, User, Wallet, Wrench, Car, Shield, Users, FileText, BarChart3, LogOut, HelpCircle,
+  MapPin, HelpCircle, User, Wallet, Wrench, Car, Shield, FileText, BarChart3, LogOut,
 } from "lucide-react";
 
 const riderLinks = [
@@ -24,11 +25,17 @@ const adminLinks = [
 
 export default function RoleNav() {
   const { role, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const links =
     role === "admin" ? adminLinks :
     role === "driver" ? driverLinks :
     riderLinks;
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/", { replace: true });
+  };
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass-bottom-sheet safe-bottom">
@@ -45,7 +52,7 @@ export default function RoleNav() {
           </NavLink>
         ))}
         <button
-          onClick={signOut}
+          onClick={handleLogout}
           className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-muted-foreground hover:text-destructive transition-colors"
         >
           <LogOut className="w-5 h-5" />
