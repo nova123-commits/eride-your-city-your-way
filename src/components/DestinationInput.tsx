@@ -2,6 +2,7 @@ import React from 'react';
 import { MapPin, Navigation } from 'lucide-react';
 import { motion } from 'framer-motion';
 import MultiStopInput from './MultiStopInput';
+import VoiceBooking from './VoiceBooking';
 
 interface DestinationInputProps {
   pickup: string;
@@ -42,13 +43,16 @@ const DestinationInput: React.FC<DestinationInputProps> = ({
             onChange={(e) => onPickupChange(e.target.value)}
             className="w-full rounded-xl bg-secondary px-4 py-3 text-sm font-medium text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition-all"
           />
-          <input
-            type="text"
-            placeholder="Where to?"
-            value={destination}
-            onChange={(e) => onDestinationChange(e.target.value)}
-            className="w-full rounded-xl bg-secondary px-4 py-3 text-sm font-medium text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-          />
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Where to?"
+              value={destination}
+              onChange={(e) => onDestinationChange(e.target.value)}
+              className="flex-1 rounded-xl bg-secondary px-4 py-3 text-sm font-medium text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+            />
+            <VoiceBooking onResult={onDestinationChange} />
+          </div>
         </div>
       </div>
 

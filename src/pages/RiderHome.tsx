@@ -11,6 +11,8 @@ import SearchingDriver from '@/components/SearchingDriver';
 import DriverMatched from '@/components/DriverMatched';
 import RatingModal from '@/components/RatingModal';
 import ImpactTracker from '@/components/ImpactTracker';
+import CarbonFootprintTracker from '@/components/CarbonFootprintTracker';
+import LoyaltyRewards from '@/components/LoyaltyRewards';
 import PinkModeToggle from '@/components/safety/PinkModeToggle';
 import PaymentFlow from '@/components/payments/PaymentFlow';
 import DigitalReceipt from '@/components/payments/DigitalReceipt';
@@ -184,6 +186,7 @@ const RiderHome: React.FC = () => {
                 onRemove={() => setErrandStop(null)}
               />
               <PinkModeToggle enabled={pinkMode} onToggle={setPinkMode} />
+              <LoyaltyRewards />
               <RiderWaitlist />
             </div>
           )}
@@ -198,7 +201,13 @@ const RiderHome: React.FC = () => {
                 accessibilityPrefs={accessibilityPrefs}
                 onAccessibilityChange={setAccessibilityPrefs}
               />
-              {isElectric && <ImpactTracker distanceKm={distanceKm} />}
+              {selectedCategory && (
+                <CarbonFootprintTracker
+                  distanceKm={distanceKm}
+                  categoryId={selectedCategory.id}
+                  totalTrips={12}
+                />
+              )}
               {additionalStops.filter(s => s.length > 0).length > 0 && (
                 <div className="text-xs text-muted-foreground px-1">
                   +KES {stopsFee} for {additionalStops.filter(s => s.length > 0).length} additional stop(s)
