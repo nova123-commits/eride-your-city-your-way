@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Zap, Leaf } from 'lucide-react';
 import { RIDE_CATEGORIES, calculateFare, isPeakHour, WAITING_FEE_PER_MIN, type RideCategory } from '@/lib/ride';
+import AccessibilityToggles, { type AccessibilityPrefs } from '@/components/AccessibilityToggles';
 
 interface RideCategoriesProps {
   selectedId: string | null;
@@ -9,9 +10,14 @@ interface RideCategoriesProps {
   distanceKm: number;
   onConfirm: () => void;
   waitMinutes?: number;
+  accessibilityPrefs?: AccessibilityPrefs;
+  onAccessibilityChange?: (prefs: AccessibilityPrefs) => void;
 }
 
-const RideCategories: React.FC<RideCategoriesProps> = ({ selectedId, onSelect, distanceKm, onConfirm, waitMinutes = 0 }) => {
+const RideCategories: React.FC<RideCategoriesProps> = ({
+  selectedId, onSelect, distanceKm, onConfirm, waitMinutes = 0,
+  accessibilityPrefs, onAccessibilityChange,
+}) => {
   const peak = isPeakHour();
 
   return (
@@ -79,6 +85,10 @@ const RideCategories: React.FC<RideCategoriesProps> = ({ selectedId, onSelect, d
           </motion.button>
         );
       })}
+
+      {accessibilityPrefs && onAccessibilityChange && (
+        <AccessibilityToggles prefs={accessibilityPrefs} onChange={onAccessibilityChange} />
+      )}
 
       {selectedId && (
         <motion.button
