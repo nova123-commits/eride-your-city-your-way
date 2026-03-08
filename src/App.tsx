@@ -7,6 +7,8 @@ import Index from "./pages/Index";
 import RiderHome from "./pages/RiderHome";
 import DriverHome from "./pages/DriverHome";
 import GoldMember from "./pages/GoldMember";
+import DriverOnboarding from "./pages/DriverOnboarding";
+import AdminApprovals from "./pages/AdminApprovals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
