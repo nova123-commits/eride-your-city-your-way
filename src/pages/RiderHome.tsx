@@ -182,8 +182,31 @@ const RiderHome: React.FC = () => {
             onClick={handleTripComplete}
             className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl brand-gradient text-primary-foreground text-xs font-semibold z-10 btn-press"
           >
-            Simulate: Trip Complete
+            Simulate: Start Trip
           </motion.button>
+        )}
+
+        {step === 'inTrip' && (
+          <>
+            <motion.button
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={handleInTripComplete}
+              className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl brand-gradient text-primary-foreground text-xs font-semibold z-10 btn-press"
+            >
+              Simulate: Arrive
+            </motion.button>
+            {/* Pulsing map markers */}
+            <div className="absolute top-20 left-10">
+              <PulseMapMarker type="pickup" label="Pickup" />
+            </div>
+            <div className="absolute bottom-20 right-10">
+              <PulseMapMarker type="destination" label="Dropoff" />
+            </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <PulseMapMarker type="driver" />
+            </div>
+          </>
         )}
       </div>
 
