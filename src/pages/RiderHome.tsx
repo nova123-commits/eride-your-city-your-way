@@ -26,6 +26,10 @@ import { calculateFareBreakdown, formatCurrency, convertCurrency, type CurrencyC
 import RoleNav from '@/components/RoleNav';
 import PromoBanner from '@/components/PromoBanner';
 import RiderWaitlist from '@/components/RiderWaitlist';
+import LiveProgressBar from '@/components/trip/LiveProgressBar';
+import TripSummaryOverlay from '@/components/trip/TripSummaryOverlay';
+import PulseMapMarker from '@/components/trip/PulseMapMarker';
+import { downloadReceiptAsImage } from '@/lib/receiptGenerator';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
