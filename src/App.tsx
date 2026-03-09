@@ -96,6 +96,7 @@ const App = () => {
             <Route path="/terms" element={<Legal />} />
             <Route path="/help" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
             <Route path="/trip/:token" element={<SharedTrip />} />
+            <Route path="/manager" element={<ProtectedRoute allowedRoles={["manager"]}><ManagerDashboard /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

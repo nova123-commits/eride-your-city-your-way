@@ -329,7 +329,7 @@ export default function ManagerDashboard() {
                           ].map(perm => (
                             <div key={perm.key} className="flex items-center gap-2">
                               <Switch
-                                checked={(admin as Record<string, unknown>)[perm.key] as boolean}
+                                checked={admin[perm.key as keyof AdminPerm] as boolean}
                                 onCheckedChange={(v) => toggleAdminPerm(admin.admin_user_id, perm.key, v)}
                               />
                               <Label className="text-xs">{perm.label}</Label>
