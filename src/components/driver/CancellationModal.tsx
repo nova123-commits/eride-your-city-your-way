@@ -36,33 +36,33 @@ const CancellationModal: React.FC<CancellationModalProps> = ({ tripId, onCancel,
     setSubmitting(true);
     try {
       // Log cancellation
-      await supabase.from('driver_cancellations').insert({
+      await (supabase as any).from('driver_cancellations').insert({
         driver_id: user.id,
         trip_id: tripId || null,
         reason,
       });
 
       // Update commitment score
-      const { data: existing } = await supabase
+      const { data: existing } = await (supabase as any)
         .from('driver_commitment_scores')
         .select('*')
         .eq('driver_id', user.id)
         .maybeSingle();
 
       if (existing) {
-        const newScore = Math.max(0, existing.score - 5);
-        await supabase
+        const newScore = Math.max(0, (existing as any).score - 5);
+        await (supabase as any)
           .from('driver_commitment_scores')
           .update({
             score: newScore,
-            total_cancels: existing.total_cancels + 1,
+            total_cancels: (existing as any).total_cancels + 1,
             updated_at: new Date().toISOString(),
           })
           .eq('driver_id', user.id);
       } else {
-        await supabase.from('driver_commitment_scores').insert({
+        await (supabase as any).from('driver_commitment_scores').insert({
           driver_id: user.id,
-          score: 95, // 100 - 5
+          score: 95,
           total_cancels: 1,
           total_accepts: 0,
         });

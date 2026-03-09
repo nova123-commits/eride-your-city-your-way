@@ -107,6 +107,99 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_cancellations: {
+        Row: {
+          created_at: string
+          driver_id: string
+          id: string
+          reason: string
+          trip_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          driver_id: string
+          id?: string
+          reason: string
+          trip_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          driver_id?: string
+          id?: string
+          reason?: string
+          trip_id?: string | null
+        }
+        Relationships: []
+      }
+      driver_commitment_scores: {
+        Row: {
+          driver_id: string
+          id: string
+          score: number
+          total_accepts: number
+          total_cancels: number
+          updated_at: string
+        }
+        Insert: {
+          driver_id: string
+          id?: string
+          score?: number
+          total_accepts?: number
+          total_cancels?: number
+          updated_at?: string
+        }
+        Update: {
+          driver_id?: string
+          id?: string
+          score?: number
+          total_accepts?: number
+          total_cancels?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      locked_fares: {
+        Row: {
+          category_id: string
+          currency: string
+          destination: string
+          distance_km: number
+          expires_at: string
+          fare_amount: number
+          id: string
+          is_active: boolean
+          locked_at: string
+          pickup: string
+          user_id: string
+        }
+        Insert: {
+          category_id: string
+          currency?: string
+          destination: string
+          distance_km: number
+          expires_at?: string
+          fare_amount: number
+          id?: string
+          is_active?: boolean
+          locked_at?: string
+          pickup: string
+          user_id: string
+        }
+        Update: {
+          category_id?: string
+          currency?: string
+          destination?: string
+          distance_km?: number
+          expires_at?: string
+          fare_amount?: number
+          id?: string
+          is_active?: boolean
+          locked_at?: string
+          pickup?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lost_items: {
         Row: {
           admin_notes: string | null
