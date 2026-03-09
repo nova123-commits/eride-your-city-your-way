@@ -47,8 +47,11 @@ const RiderHome: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { quality, isLowData } = useNetworkQuality();
+  const { lockFare, getLockedFare, releaseLock } = useFareLock();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [step, setStep] = useState<RiderStep>('home');
+  const [fareLocked, setFareLocked] = useState(false);
   const [pickup, setPickup] = useState('Current Location');
   const [destination, setDestination] = useState('');
   const [additionalStops, setAdditionalStops] = useState<string[]>([]);
