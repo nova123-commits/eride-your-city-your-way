@@ -180,7 +180,8 @@ export default function WalletPage() {
     setTimeout(() => setModal(null), 1800);
   };
 
-  const canWithdraw = balance > 500;
+  const canWithdraw = balance >= 500 + TRANSACTION_FEE;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
