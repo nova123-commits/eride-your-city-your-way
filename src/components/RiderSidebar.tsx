@@ -155,11 +155,11 @@ const RiderSidebar: React.FC<RiderSidebarProps> = ({ open, onOpenChange }) => {
           ) : (
             <>
               <button
-                onClick={() => handleNav('/gold')}
+                onClick={() => { onOpenChange(false); setReferralOpen(true); }}
                 className="w-full flex items-center gap-3 py-2.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
               >
-                <Users className="w-5 h-5" />
-                Refer a Friend
+                <Gift className="w-5 h-5" />
+                Earn KES 100
               </button>
               <button
                 onClick={() => handleNav('/drive-with-us')}
