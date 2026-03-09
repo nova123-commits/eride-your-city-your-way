@@ -92,7 +92,9 @@ const RiderHome: React.FC = () => {
     setStep('matched');
   }, []);
 
-  const handleCancelRide = () => {
+  const handleCancelRide = async () => {
+    await releaseLock();
+    setFareLocked(false);
     setStep('home');
     setSelectedCategory(null);
     setDestination('');
