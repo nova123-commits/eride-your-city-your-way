@@ -26,6 +26,7 @@ import AdminCommandCenter from "./pages/AdminCommandCenter";
 import TripsHistory from "./pages/TripsHistory";
 import SafetyCenter from "./pages/SafetyCenter";
 import SettingsPage from "./pages/SettingsPage";
+import ManagerDashboard from "./pages/ManagerDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -95,6 +96,7 @@ const App = () => {
             <Route path="/terms" element={<Legal />} />
             <Route path="/help" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
             <Route path="/trip/:token" element={<SharedTrip />} />
+            <Route path="/manager" element={<ProtectedRoute allowedRoles={["manager"]}><ManagerDashboard /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

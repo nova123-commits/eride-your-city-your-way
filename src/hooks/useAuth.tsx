@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
-export type AppRole = "rider" | "driver" | "admin";
+export type AppRole = "rider" | "driver" | "admin" | "manager";
 
 interface AuthContextType {
   user: User | null;
@@ -126,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const target = r ?? role;
     if (target === "driver") window.location.href = "/driver";
     else if (target === "admin") window.location.href = "/admin/overview";
+    else if (target === "manager") window.location.href = "/manager";
     else window.location.href = "/rider";
   }, [role]);
 
