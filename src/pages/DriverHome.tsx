@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import DriverSafetyOnboarding from '@/components/driver/DriverSafetyOnboarding';
 import { Power, MapPin, Navigation, Clock, Star, Wallet, BarChart3, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import RiderSidebar from '@/components/RiderSidebar';
@@ -27,6 +30,7 @@ const DRIVER_CATEGORY: string = 'basic'; // change to 'boda' to test safety chec
 
 const DriverHome: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState<DriverStep>('offline');
   const [countdown, setCountdown] = useState(15);
   const [otpInput, setOtpInput] = useState('');
@@ -35,7 +39,19 @@ const DriverHome: React.FC = () => {
   const [earnings] = useState(4250);
   const [showCredentials, setShowCredentials] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showSafetyOnboarding, setShowSafetyOnboarding] = useState(false);
+  const [safetyTermsAccepted, setSafetyTermsAccepted] = useState<boolean | null>(null);
   const { getLockedFare } = useFareLock();
+
+  // Check if driver has accepted safety terms
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('profiles').select('safety_terms_accepted_at').eq('id', user.id).single().then(({ data }) => {
+      const accepted = !!(data as any)?.safety_terms_accepted_at;
+      setSafetyTermsAccepted(accepted);
+      if (!accepted) setShowSafetyOnboarding(true);
+    });
+  }, [user]);
 
   useEffect(() => {
     if (step === 'online') {
@@ -95,6 +111,15 @@ const DriverHome: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Safety Onboarding Overlay */}
+      <AnimatePresence>
+        {showSafetyOnboarding && (
+          <DriverSafetyOnboarding onComplete={() => {
+            setShowSafetyOnboarding(false);
+            setSafetyTermsAccepted(true);
+          }} />
+        )}
+      </AnimatePresence>
       <RiderSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
       {/* Header */}
       <header className="flex items-center justify-between px-5 pt-4 pb-2 safe-top">

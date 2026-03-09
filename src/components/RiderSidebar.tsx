@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Wallet, CreditCard, ShieldCheck, Gift, HelpCircle, Settings, LogOut, Car, User, DollarSign, Users } from 'lucide-react';
+import { Clock, Wallet, CreditCard, ShieldCheck, Gift, HelpCircle, Settings, LogOut, Car, User, DollarSign, Users, BookOpen } from 'lucide-react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useAuth } from '@/hooks/useAuth';
 import { Separator } from '@/components/ui/separator';
@@ -144,6 +144,13 @@ const RiderSidebar: React.FC<RiderSidebarProps> = ({ open, onOpenChange }) => {
               >
                 <DollarSign className="w-5 h-5" />
                 Earnings Report
+              </button>
+              <button
+                onClick={() => handleNav('/driver/manual')}
+                className="w-full flex items-center gap-3 py-2.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                <BookOpen className="w-5 h-5" />
+                Driver Manual
               </button>
               <button
                 onClick={() => handleNav('/rider')}
