@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Bike, HardHat, Shirt } from 'lucide-react';
+import { ShieldCheck, Bike, HardHat, Shirt, Fuel } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 interface BodaSafetyCheckProps {
   onComplete: () => void;
