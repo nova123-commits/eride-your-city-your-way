@@ -186,6 +186,8 @@ const RiderSidebar: React.FC<RiderSidebarProps> = ({ open, onOpenChange }) => {
         </div>
       </SheetContent>
     </Sheet>
+    <RiderReferralSheet open={referralOpen} onOpenChange={setReferralOpen} />
+    </>
   );
 };
 
