@@ -42,7 +42,7 @@ export default function AdminCommandCenter() {
         </motion.div>
 
         <Tabs defaultValue="heatmap" className="mt-6">
-          <TabsList className="w-full grid grid-cols-7 h-auto">
+          <TabsList className="w-full grid grid-cols-8 h-auto">
             {TABS.map(tab => (
               <TabsTrigger key={tab.value} value={tab.value} className="flex flex-col items-center gap-1 py-2 text-[10px]">
                 <tab.icon className="w-4 h-4" />
