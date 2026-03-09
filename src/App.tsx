@@ -98,6 +98,7 @@ const App = () => {
             <Route path="/help" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
             <Route path="/trip/:token" element={<SharedTrip />} />
             <Route path="/manager" element={<ProtectedRoute allowedRoles={["manager"]}><ManagerDashboard /></ProtectedRoute>} />
+            <Route path="/driver/manual" element={<ProtectedRoute allowedRoles={["driver"]}><DriverManual /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

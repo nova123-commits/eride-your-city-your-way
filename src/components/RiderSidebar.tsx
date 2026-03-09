@@ -146,6 +146,13 @@ const RiderSidebar: React.FC<RiderSidebarProps> = ({ open, onOpenChange }) => {
                 Earnings Report
               </button>
               <button
+                onClick={() => handleNav('/driver/manual')}
+                className="w-full flex items-center gap-3 py-2.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                <BookOpen className="w-5 h-5" />
+                Driver Manual
+              </button>
+              <button
                 onClick={() => handleNav('/rider')}
                 className="w-full flex items-center gap-3 py-2.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
               >
