@@ -5,6 +5,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useAuth } from '@/hooks/useAuth';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
+import RiderReferralSheet from '@/components/RiderReferralSheet';
 
 interface RiderSidebarProps {
   open: boolean;
@@ -16,6 +17,7 @@ const RiderSidebar: React.FC<RiderSidebarProps> = ({ open, onOpenChange }) => {
   const { user, role, signOut } = useAuth();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null }>({ full_name: null, avatar_url: null });
   const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [referralOpen, setReferralOpen] = useState(false);
 
   // Fetch profile data
   useEffect(() => {
