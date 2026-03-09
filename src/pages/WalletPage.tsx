@@ -185,12 +185,16 @@ export default function WalletPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <RiderSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-5 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-accent transition-colors">
-          <ArrowLeft className="w-5 h-5 text-foreground" />
+        <button onClick={() => setSidebarOpen(true)} className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-accent transition-colors">
+          <Menu className="w-5 h-5 text-foreground" />
         </button>
         <ERideLogo size="sm" />
+        <button onClick={() => navigate(-1)} className="ml-auto w-10 h-10 rounded-xl flex items-center justify-center hover:bg-accent transition-colors">
+          <ArrowLeft className="w-5 h-5 text-foreground" />
+        </button>
       </header>
 
       <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5 max-w-md mx-auto w-full">
