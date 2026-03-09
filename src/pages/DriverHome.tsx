@@ -192,6 +192,13 @@ const DriverHome: React.FC = () => {
         )}
       </AnimatePresence>
 
+      {/* Boda Safety Check */}
+      <AnimatePresence>
+        {step === 'bodaCheck' && (
+          <BodaSafetyCheck onComplete={handleBodaCheckComplete} onCancel={handleBodaCheckCancel} />
+        )}
+      </AnimatePresence>
+
       {/* Referral + Home filter — visible when offline */}
       {step === 'offline' && (
         <div className="px-4 py-3 space-y-3">
