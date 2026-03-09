@@ -123,7 +123,9 @@ const RiderHome: React.FC = () => {
     });
   };
 
-  const handleRatingSubmit = () => {
+  const handleRatingSubmit = async () => {
+    await releaseLock();
+    setFareLocked(false);
     setStep('home');
     setSelectedCategory(null);
     setDestination('');
