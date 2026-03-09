@@ -38,6 +38,7 @@ import LowDataBanner from '@/components/LowDataBanner';
 import SafePickupPoints from '@/components/SafePickupPoints';
 import { useNetworkQuality } from '@/hooks/useNetworkQuality';
 import { useFareLock } from '@/hooks/useFareLock';
+import BookForSomeone, { type GuestBooking } from '@/components/BookForSomeone';
 
 type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'inTrip' | 'tripSummary' | 'payment' | 'receipt' | 'rating' | 'schedule';
 
