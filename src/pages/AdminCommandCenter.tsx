@@ -40,6 +40,9 @@ export default function AdminCommandCenter() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-2xl font-bold text-foreground">Command Center</h1>
           <p className="text-sm text-muted-foreground mt-1">Advanced platform operations & analytics.</p>
+          <div className="mt-4">
+            <SystemHealth />
+          </div>
         </motion.div>
 
         <Tabs defaultValue="heatmap" className="mt-6">
