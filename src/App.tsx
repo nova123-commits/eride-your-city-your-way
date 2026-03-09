@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -32,6 +32,36 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [splashDone, setSplashDone] = useState(false);
+
+  useEffect(() => {
+    console.log("%c[eRide Health Report]", "color:#00c853;font-weight:bold;font-size:14px", {
+      timestamp: new Date().toISOString(),
+      routes: [
+        "/ (Landing)", "/auth", "/rider", "/driver", "/gold", "/onboarding",
+        "/admin/overview", "/admin/approvals", "/admin/tax", "/admin/command",
+        "/wallet", "/driver/dashboard", "/trips-history", "/safety-center",
+        "/settings", "/drive-with-us", "/legal", "/terms", "/help", "/trip/:token",
+      ],
+      sidebar_links: {
+        "My Trips": "/trips-history ✅",
+        "Wallet": "/wallet ✅",
+        "Payment Methods": "/wallet ✅",
+        "Safety Toolkit": "/safety-center ✅",
+        "Rewards": "/gold ✅",
+        "Help": "/help ✅",
+        "Settings": "/settings ✅",
+      },
+      sidebar_on_pages: ["/rider ✅", "/driver ✅", "/wallet ✅", "/settings ✅"],
+      wallet: {
+        canWithdraw_logic: "balance >= 500 + TRANSACTION_FEE (515) ✅",
+        deposit_flow: "STK Push modal → 5s wait → DB update → auto-close ✅",
+        realtime_balance: "Sidebar + WalletPage both subscribe to wallets table ✅",
+      },
+      admin_protection: "ProtectedRoute with allowedRoles=['admin'] ✅",
+      role_switch: "RiderSidebar shows 'Switch to Rider Mode' for drivers ✅",
+      referral: "Unique per-user code generated from user.id substring ✅",
+    });
+  }, []);
 
   if (!splashDone) {
     return <SplashScreen onComplete={() => setSplashDone(true)} />;

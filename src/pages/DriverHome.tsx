@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Power, MapPin, Navigation, Clock, Star, Wallet, BarChart3 } from 'lucide-react';
+import { Power, MapPin, Navigation, Clock, Star, Wallet, BarChart3, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import RiderSidebar from '@/components/RiderSidebar';
 import ERideLogo from '@/components/ERideLogo';
 import RatingModal from '@/components/RatingModal';
 import DriverCredentials from '@/components/safety/DriverCredentials';
@@ -73,11 +74,17 @@ const DriverHome: React.FC = () => {
   const mockCategory = RIDE_CATEGORIES[0];
   const fare = calculateFare(mockCategory, 7.2);
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <RiderSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
       {/* Header */}
       <header className="flex items-center justify-between px-5 pt-4 pb-2 safe-top">
         <div className="flex items-center gap-2">
+          <button onClick={() => setSidebarOpen(true)} className="w-10 h-10 rounded-xl glass-fab flex items-center justify-center btn-press">
+            <Menu className="w-5 h-5 text-foreground" />
+          </button>
           <ERideLogo size="sm" />
           <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-accent text-accent-foreground">Driver</span>
           <VerifiedBadge isVerified={true} size="md" />

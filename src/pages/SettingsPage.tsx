@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, User, Bell, Lock, Globe, Moon, ChevronRight } from 'lucide-react';
+import { ArrowLeft, User, Bell, Lock, Globe, Moon, ChevronRight, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import RiderSidebar from '@/components/RiderSidebar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +17,7 @@ const SettingsPage: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -41,11 +43,15 @@ const SettingsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <RiderSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
       <header className="flex items-center gap-3 px-5 pt-4 pb-3 border-b border-border">
-        <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-accent transition-colors">
-          <ArrowLeft className="w-5 h-5 text-foreground" />
+        <button onClick={() => setSidebarOpen(true)} className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-accent transition-colors">
+          <Menu className="w-5 h-5 text-foreground" />
         </button>
         <h1 className="text-lg font-bold text-foreground">Settings</h1>
+        <button onClick={() => navigate(-1)} className="ml-auto w-10 h-10 rounded-xl flex items-center justify-center hover:bg-accent transition-colors">
+          <ArrowLeft className="w-5 h-5 text-foreground" />
+        </button>
       </header>
 
       <div className="flex-1 overflow-y-auto p-5 space-y-6">
