@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import DriverSafetyOnboarding from '@/components/driver/DriverSafetyOnboarding';
 import { Power, MapPin, Navigation, Clock, Star, Wallet, BarChart3, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import RiderSidebar from '@/components/RiderSidebar';
