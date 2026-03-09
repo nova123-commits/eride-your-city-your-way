@@ -82,7 +82,16 @@ const BodaSafetyCheck: React.FC<BodaSafetyCheckProps> = ({ onComplete, onCancel 
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={onCancel} className="flex-1">Cancel</Button>
-          <Button onClick={onComplete} disabled={!allChecked} className="flex-1">
+          <Button onClick={async () => {
+            // Log compliance to DB for manager audit
+            if (user) {
+              await (supabase as any).from('boda_compliance_logs').insert({
+                driver_id: user.id,
+                checks: CHECKS.map(c => ({ id: c.id, label: c.label, checked: true })),
+              });
+            }
+            onComplete();
+          }} disabled={!allChecked} className="flex-1">
             {allChecked ? 'Go Online' : `${checked.size}/3 Checked`}
           </Button>
         </div>
