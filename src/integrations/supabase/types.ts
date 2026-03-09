@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_permissions: {
+        Row: {
+          admin_user_id: string
+          can_approve_drivers: boolean
+          can_delete_users: boolean
+          can_issue_refunds: boolean
+          can_view_revenue: boolean
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          admin_user_id: string
+          can_approve_drivers?: boolean
+          can_delete_users?: boolean
+          can_issue_refunds?: boolean
+          can_view_revenue?: boolean
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          admin_user_id?: string
+          can_approve_drivers?: boolean
+          can_delete_users?: boolean
+          can_issue_refunds?: boolean
+          can_view_revenue?: boolean
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      audit_trail: {
+        Row: {
+          action: string
+          actor_id: string
+          actor_role: string
+          created_at: string
+          details: Json | null
+          id: string
+          target_id: string | null
+          target_table: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          actor_role: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_table?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          actor_role?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_table?: string | null
+        }
+        Relationships: []
+      }
       broadcasts: {
         Row: {
           created_at: string
