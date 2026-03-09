@@ -59,6 +59,7 @@ export default function AdminCommandCenter() {
             <TabsContent value="finance"><FinancialReconciliation /></TabsContent>
             <TabsContent value="live"><LiveOperations /></TabsContent>
             <TabsContent value="broadcast"><BroadcastComposer /></TabsContent>
+            <TabsContent value="referrals"><ReferralsOffers /></TabsContent>
           </div>
         </Tabs>
       </div>
