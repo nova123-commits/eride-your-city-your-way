@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
-export type AppRole = "rider" | "driver" | "admin";
+export type AppRole = "rider" | "driver" | "admin" | "manager";
 
 interface AuthContextType {
   user: User | null;
