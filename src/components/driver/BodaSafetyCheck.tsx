@@ -11,9 +11,9 @@ interface BodaSafetyCheckProps {
 }
 
 const CHECKS = [
-  { id: 'rider_helmet', label: 'Helmet for Rider (You)', icon: HardHat },
-  { id: 'passenger_helmet', label: 'Helmet for Passenger', icon: HardHat },
-  { id: 'reflector', label: 'Reflector Jacket', icon: Shirt },
+  { id: 'passenger_helmet', label: 'I have a spare helmet for the passenger', icon: HardHat },
+  { id: 'reflector', label: 'I am wearing my eRide reflector', icon: Shirt },
+  { id: 'fuel', label: 'My bike has enough fuel for a 10km trip', icon: Fuel },
 ];
 
 const BodaSafetyCheck: React.FC<BodaSafetyCheckProps> = ({ onComplete, onCancel }) => {
