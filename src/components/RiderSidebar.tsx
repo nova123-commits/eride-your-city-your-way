@@ -5,6 +5,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useAuth } from '@/hooks/useAuth';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
+import RiderReferralSheet from '@/components/RiderReferralSheet';
 
 interface RiderSidebarProps {
   open: boolean;
@@ -16,6 +17,7 @@ const RiderSidebar: React.FC<RiderSidebarProps> = ({ open, onOpenChange }) => {
   const { user, role, signOut } = useAuth();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null }>({ full_name: null, avatar_url: null });
   const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [referralOpen, setReferralOpen] = useState(false);
 
   // Fetch profile data
   useEffect(() => {
@@ -79,6 +81,7 @@ const RiderSidebar: React.FC<RiderSidebarProps> = ({ open, onOpenChange }) => {
   };
 
   return (
+    <>
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-[300px] p-0 bg-background border-r border-border flex flex-col">
         {/* Profile Header */}
@@ -153,11 +156,11 @@ const RiderSidebar: React.FC<RiderSidebarProps> = ({ open, onOpenChange }) => {
           ) : (
             <>
               <button
-                onClick={() => handleNav('/gold')}
+                onClick={() => { onOpenChange(false); setReferralOpen(true); }}
                 className="w-full flex items-center gap-3 py-2.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
               >
-                <Users className="w-5 h-5" />
-                Refer a Friend
+                <Gift className="w-5 h-5" />
+                Earn KES 100
               </button>
               <button
                 onClick={() => handleNav('/drive-with-us')}
@@ -184,6 +187,8 @@ const RiderSidebar: React.FC<RiderSidebarProps> = ({ open, onOpenChange }) => {
         </div>
       </SheetContent>
     </Sheet>
+    <RiderReferralSheet open={referralOpen} onOpenChange={setReferralOpen} />
+    </>
   );
 };
 

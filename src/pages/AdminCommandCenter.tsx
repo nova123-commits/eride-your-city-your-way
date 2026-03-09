@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import ERideLogo from "@/components/ERideLogo";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Flame, Send, Zap, Ban, DollarSign, MapPin, Megaphone } from "lucide-react";
+import { Shield, Flame, Send, Zap, Ban, DollarSign, MapPin, Megaphone, Gift } from "lucide-react";
 import DemandHeatmap from "@/components/admin/DemandHeatmap";
 import ManualDispatch from "@/components/admin/ManualDispatch";
 import SurgeControl from "@/components/admin/SurgeControl";
@@ -10,6 +10,7 @@ import UserSuspension from "@/components/admin/UserSuspension";
 import FinancialReconciliation from "@/components/admin/FinancialReconciliation";
 import LiveOperations from "@/components/admin/LiveOperations";
 import BroadcastComposer from "@/components/admin/BroadcastComposer";
+import ReferralsOffers from "@/components/admin/ReferralsOffers";
 
 const TABS = [
   { value: "heatmap", label: "Heatmap", icon: Flame },
@@ -19,6 +20,7 @@ const TABS = [
   { value: "finance", label: "Finance", icon: DollarSign },
   { value: "live", label: "Live", icon: MapPin },
   { value: "broadcast", label: "Broadcast", icon: Megaphone },
+  { value: "referrals", label: "Referrals", icon: Gift },
 ];
 
 export default function AdminCommandCenter() {
@@ -40,7 +42,7 @@ export default function AdminCommandCenter() {
         </motion.div>
 
         <Tabs defaultValue="heatmap" className="mt-6">
-          <TabsList className="w-full grid grid-cols-7 h-auto">
+          <TabsList className="w-full grid grid-cols-8 h-auto">
             {TABS.map(tab => (
               <TabsTrigger key={tab.value} value={tab.value} className="flex flex-col items-center gap-1 py-2 text-[10px]">
                 <tab.icon className="w-4 h-4" />
@@ -57,6 +59,7 @@ export default function AdminCommandCenter() {
             <TabsContent value="finance"><FinancialReconciliation /></TabsContent>
             <TabsContent value="live"><LiveOperations /></TabsContent>
             <TabsContent value="broadcast"><BroadcastComposer /></TabsContent>
+            <TabsContent value="referrals"><ReferralsOffers /></TabsContent>
           </div>
         </Tabs>
       </div>

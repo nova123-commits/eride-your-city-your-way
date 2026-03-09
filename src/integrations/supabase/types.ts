@@ -119,6 +119,45 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string
+          current_uses: number
+          discount_amount: number
+          discount_percent: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by: string
+          current_uses?: number
+          discount_amount?: number
+          discount_percent?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string
+          current_uses?: number
+          discount_amount?: number
+          discount_percent?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+        }
+        Relationships: []
+      }
       referrals: {
         Row: {
           bonus_paid: boolean
@@ -429,6 +468,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      complete_referral_bonus: {
+        Args: {
+          _referral_id: string
+          _referred_id: string
+          _referrer_id: string
+        }
+        Returns: undefined
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
