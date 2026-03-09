@@ -268,6 +268,7 @@ const RiderHome: React.FC = () => {
                 onAdd={setErrandStop}
                 onRemove={() => setErrandStop(null)}
               />
+              <BookForSomeone value={guestBooking} onChange={setGuestBooking} />
               <PinkModeToggle enabled={pinkMode} onToggle={setPinkMode} />
               <LoyaltyRewards />
               <RiderWaitlist />
