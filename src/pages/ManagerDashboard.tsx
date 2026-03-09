@@ -26,6 +26,7 @@ import {
   ArrowDownCircle, Percent, Loader2, RefreshCw, UserCheck, Ban, Undo2,
   Lock, Snowflake, UserPlus, MonitorSmartphone, AlertTriangle
 } from "lucide-react";
+import SystemHealth from "@/components/admin/SystemHealth";
 
 interface AdminPerm {
   id: string;
@@ -415,6 +416,8 @@ export default function ManagerDashboard() {
                 <CardContent><p className="text-xl font-bold">{commission}%</p></CardContent>
               </Card>
             </div>
+
+            <SystemHealth />
 
             {/* Commission Slider */}
             <Card>

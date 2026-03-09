@@ -16,6 +16,8 @@ import DriverDemandHeatmap from '@/components/driver/DriverDemandHeatmap';
 import HomeDestinationFilter from '@/components/driver/HomeDestinationFilter';
 import LiveProgressBar from '@/components/trip/LiveProgressBar';
 import PulseMapMarker from '@/components/trip/PulseMapMarker';
+import CancellationModal from '@/components/driver/CancellationModal';
+import { useFareLock } from '@/hooks/useFareLock';
 
 type DriverStep = 'offline' | 'selfie' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
@@ -28,6 +30,8 @@ const DriverHome: React.FC = () => {
   const [otpError, setOtpError] = useState(false);
   const [earnings] = useState(4250);
   const [showCredentials, setShowCredentials] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const { getLockedFare } = useFareLock();
 
   useEffect(() => {
     if (step === 'online') {
@@ -72,7 +76,8 @@ const DriverHome: React.FC = () => {
   };
 
   const mockCategory = RIDE_CATEGORIES[0];
-  const fare = calculateFare(mockCategory, 7.2);
+  const lockedFare = getLockedFare();
+  const fare = lockedFare ?? calculateFare(mockCategory, 7.2);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -302,12 +307,28 @@ const DriverHome: React.FC = () => {
               />
               <div className="flex gap-3">
                 <SOSButton floating={false} />
+                <button onClick={() => setShowCancelModal(true)} className="py-4 px-4 rounded-2xl border border-destructive text-destructive font-bold text-sm active:scale-[0.98]">Cancel</button>
                 <button onClick={handleFinishTrip} className="flex-1 py-4 rounded-2xl brand-gradient text-primary-foreground font-bold text-sm active:scale-[0.98]">Finish Trip</button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Cancellation Modal */}
+      <AnimatePresence>
+        {showCancelModal && (
+          <CancellationModal
+            onCancel={() => setShowCancelModal(false)}
+            onConfirm={() => {
+              setShowCancelModal(false);
+              setStep('online');
+              setOtpInput('');
+              setCountdown(15);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       {step === 'rating' && (
         <RatingModal role="driver" name="Alice Wanjiku" onSubmit={handleRatingSubmit} />
