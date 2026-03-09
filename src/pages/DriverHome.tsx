@@ -111,6 +111,15 @@ const DriverHome: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Safety Onboarding Overlay */}
+      <AnimatePresence>
+        {showSafetyOnboarding && (
+          <DriverSafetyOnboarding onComplete={() => {
+            setShowSafetyOnboarding(false);
+            setSafetyTermsAccepted(true);
+          }} />
+        )}
+      </AnimatePresence>
       <RiderSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
       {/* Header */}
       <header className="flex items-center justify-between px-5 pt-4 pb-2 safe-top">
