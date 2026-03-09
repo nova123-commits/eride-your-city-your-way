@@ -27,6 +27,7 @@ import {
   Lock, Snowflake, UserPlus, MonitorSmartphone, AlertTriangle
 } from "lucide-react";
 import SystemHealth from "@/components/admin/SystemHealth";
+import LiveSOSAlerts from "@/components/admin/LiveSOSAlerts";
 
 interface AdminPerm {
   id: string;
