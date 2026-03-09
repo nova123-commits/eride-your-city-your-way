@@ -258,6 +258,7 @@ export type Database = {
           full_name: string | null
           id: string
           managed_by: string | null
+          mpesa_phone: string | null
           phone: string | null
           updated_at: string
         }
@@ -267,6 +268,7 @@ export type Database = {
           full_name?: string | null
           id: string
           managed_by?: string | null
+          mpesa_phone?: string | null
           phone?: string | null
           updated_at?: string
         }
@@ -276,6 +278,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           managed_by?: string | null
+          mpesa_phone?: string | null
           phone?: string | null
           updated_at?: string
         }
@@ -452,6 +455,36 @@ export type Database = {
         }
         Relationships: []
       }
+      sos_alerts: {
+        Row: {
+          created_at: string
+          id: string
+          location_text: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location_text?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location_text?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       support_messages: {
         Row: {
           content: string
@@ -519,6 +552,30 @@ export type Database = {
           status?: string
           subject?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trusted_contacts: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          phone: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          phone: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string
           user_id?: string
         }
         Relationships: []
