@@ -260,6 +260,7 @@ export type Database = {
           managed_by: string | null
           mpesa_phone: string | null
           phone: string | null
+          safety_terms_accepted_at: string | null
           updated_at: string
         }
         Insert: {
@@ -270,6 +271,7 @@ export type Database = {
           managed_by?: string | null
           mpesa_phone?: string | null
           phone?: string | null
+          safety_terms_accepted_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -280,6 +282,7 @@ export type Database = {
           managed_by?: string | null
           mpesa_phone?: string | null
           phone?: string | null
+          safety_terms_accepted_at?: string | null
           updated_at?: string
         }
         Relationships: []
