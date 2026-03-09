@@ -62,6 +62,7 @@ export default function WalletPage() {
   const [balance, setBalance] = useState<number>(0);
   const [transactions, setTransactions] = useState<Tx[]>([]);
   const [loadingBalance, setLoadingBalance] = useState(true);
+  const [registeredPhone, setRegisteredPhone] = useState<string | null>(null);
 
   const [modal, setModal] = useState<ModalMode>(null);
   const [depositStage, setDepositStage] = useState<DepositStage>('form');
@@ -83,6 +84,11 @@ export default function WalletPage() {
       setLoadingBalance(false);
     };
     fetchWallet();
+
+    // Fetch registered M-Pesa phone from profile
+    supabase.from('profiles').select('phone').eq('id', user.id).single().then(({ data }) => {
+      if (data?.phone) setRegisteredPhone(data.phone);
+    });
 
     const channel = supabase.channel('wallet-page')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'wallets', filter: `user_id=eq.${user.id}` },
@@ -110,7 +116,13 @@ export default function WalletPage() {
 
   /* ── Reset modal state ──────────────────────────────────────── */
   const openModal = (mode: ModalMode) => {
-    setAmount(''); setPhone(''); setErrors({}); setDepositStage('form');
+    setAmount(''); setErrors({}); setDepositStage('form');
+    // For withdrawals, lock phone to registered number if driver
+    if (mode === 'withdraw' && role === 'driver' && registeredPhone) {
+      setPhone(registeredPhone);
+    } else {
+      setPhone('');
+    }
     setModal(mode);
   };
 
@@ -346,14 +358,25 @@ export default function WalletPage() {
 
                   {/* Phone */}
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">M-Pesa Phone Number</label>
+                    <label className="text-xs font-medium text-muted-foreground">
+                      M-Pesa Phone Number
+                      {modal === 'withdraw' && role === 'driver' && registeredPhone && (
+                        <span className="text-primary ml-1">(Locked to registered number)</span>
+                      )}
+                    </label>
                     <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="0712 345 678"
-                      className={`w-full px-4 py-3 rounded-xl border text-sm bg-background text-foreground outline-none transition-colors ${errors.phone ? 'border-destructive' : 'border-border focus:border-primary'}`}
+                      disabled={modal === 'withdraw' && role === 'driver' && !!registeredPhone}
+                      className={`w-full px-4 py-3 rounded-xl border text-sm bg-background text-foreground outline-none transition-colors ${
+                        modal === 'withdraw' && role === 'driver' && registeredPhone ? 'opacity-60 cursor-not-allowed' : ''
+                      } ${errors.phone ? 'border-destructive' : 'border-border focus:border-primary'}`}
                     />
+                    {modal === 'withdraw' && role === 'driver' && registeredPhone && (
+                      <p className="text-[10px] text-muted-foreground">Only the platform Manager can change your withdrawal number.</p>
+                    )}
                     {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
                   </div>
 

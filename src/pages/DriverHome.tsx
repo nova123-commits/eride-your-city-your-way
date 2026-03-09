@@ -17,9 +17,13 @@ import HomeDestinationFilter from '@/components/driver/HomeDestinationFilter';
 import LiveProgressBar from '@/components/trip/LiveProgressBar';
 import PulseMapMarker from '@/components/trip/PulseMapMarker';
 import CancellationModal from '@/components/driver/CancellationModal';
+import BodaSafetyCheck from '@/components/driver/BodaSafetyCheck';
 import { useFareLock } from '@/hooks/useFareLock';
 
-type DriverStep = 'offline' | 'selfie' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
+type DriverStep = 'offline' | 'selfie' | 'bodaCheck' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
+
+// Simulated: in production, fetch from driver profile
+const DRIVER_CATEGORY: string = 'basic'; // change to 'boda' to test safety check
 
 const DriverHome: React.FC = () => {
   const navigate = useNavigate();
@@ -52,7 +56,15 @@ const DriverHome: React.FC = () => {
   }, [step, countdown]);
 
   const handleGoOnline = () => setStep('selfie');
-  const handleSelfieVerified = () => setStep('online');
+  const handleSelfieVerified = () => {
+    if (DRIVER_CATEGORY === 'boda') {
+      setStep('bodaCheck');
+    } else {
+      setStep('online');
+    }
+  };
+  const handleBodaCheckComplete = () => setStep('online');
+  const handleBodaCheckCancel = () => setStep('offline');
   const handleSelfieCancelled = () => setStep('offline');
   const handleAccept = () => setStep('navigating');
   const handleDecline = () => { setStep('online'); setCountdown(15); };
@@ -177,6 +189,13 @@ const DriverHome: React.FC = () => {
       <AnimatePresence>
         {step === 'selfie' && (
           <SelfieVerification onVerified={handleSelfieVerified} onCancel={handleSelfieCancelled} />
+        )}
+      </AnimatePresence>
+
+      {/* Boda Safety Check */}
+      <AnimatePresence>
+        {step === 'bodaCheck' && (
+          <BodaSafetyCheck onComplete={handleBodaCheckComplete} onCancel={handleBodaCheckCancel} />
         )}
       </AnimatePresence>
 

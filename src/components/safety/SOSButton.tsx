@@ -2,21 +2,32 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, Mic, MapPin, Phone, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SOSButtonProps {
   floating?: boolean;
 }
 
 const SOSButton: React.FC<SOSButtonProps> = ({ floating = true }) => {
+  const { user } = useAuth();
   const [isActive, setIsActive] = useState(false);
 
-  const handleSOS = () => {
+  const handleSOS = async () => {
     setIsActive(true);
     toast.error('🚨 Safety Alert Triggered', {
       description: 'Live location shared with eRide Safety Team',
       duration: 5000,
     });
-    // Simulate: alert saved to trips table, SMS/WhatsApp sent
+
+    // Persist SOS alert to DB so admin/manager dashboards can see it
+    if (user) {
+      await (supabase as any).from('sos_alerts').insert({
+        user_id: user.id,
+        location_text: 'Current GPS location',
+        status: 'active',
+      });
+    }
   };
 
   const handleDismiss = () => {

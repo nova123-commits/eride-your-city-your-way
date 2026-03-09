@@ -38,6 +38,7 @@ import LowDataBanner from '@/components/LowDataBanner';
 import SafePickupPoints from '@/components/SafePickupPoints';
 import { useNetworkQuality } from '@/hooks/useNetworkQuality';
 import { useFareLock } from '@/hooks/useFareLock';
+import BookForSomeone, { type GuestBooking } from '@/components/BookForSomeone';
 
 type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'inTrip' | 'tripSummary' | 'payment' | 'receipt' | 'rating' | 'schedule';
 
@@ -66,6 +67,7 @@ const RiderHome: React.FC = () => {
     temperature: 'ac_low',
     musicGenre: 'None',
   });
+  const [guestBooking, setGuestBooking] = useState<GuestBooking>({ enabled: false, passengerName: '', passengerPhone: '' });
   const distanceKm = 7.2;
 
   const handleSearch = () => setStep('categories');
@@ -266,6 +268,7 @@ const RiderHome: React.FC = () => {
                 onAdd={setErrandStop}
                 onRemove={() => setErrandStop(null)}
               />
+              <BookForSomeone value={guestBooking} onChange={setGuestBooking} />
               <PinkModeToggle enabled={pinkMode} onToggle={setPinkMode} />
               <LoyaltyRewards />
               <RiderWaitlist />
