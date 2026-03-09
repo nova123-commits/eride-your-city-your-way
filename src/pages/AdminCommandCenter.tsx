@@ -11,6 +11,7 @@ import FinancialReconciliation from "@/components/admin/FinancialReconciliation"
 import LiveOperations from "@/components/admin/LiveOperations";
 import BroadcastComposer from "@/components/admin/BroadcastComposer";
 import ReferralsOffers from "@/components/admin/ReferralsOffers";
+import SystemHealth from "@/components/admin/SystemHealth";
 
 const TABS = [
   { value: "heatmap", label: "Heatmap", icon: Flame },
