@@ -27,6 +27,7 @@ import TripsHistory from "./pages/TripsHistory";
 import SafetyCenter from "./pages/SafetyCenter";
 import SettingsPage from "./pages/SettingsPage";
 import ManagerDashboard from "./pages/ManagerDashboard";
+import ManagerSetup from "./pages/ManagerSetup";
 import DriverManual from "./pages/DriverManual";
 import NotFound from "./pages/NotFound";
 
@@ -98,6 +99,7 @@ const App = () => {
             <Route path="/help" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
             <Route path="/trip/:token" element={<SharedTrip />} />
             <Route path="/manager" element={<ProtectedRoute allowedRoles={["manager"]}><ManagerDashboard /></ProtectedRoute>} />
+            <Route path="/manager/setup" element={<ProtectedRoute allowedRoles={["manager"]}><ManagerSetup /></ProtectedRoute>} />
             <Route path="/driver/manual" element={<ProtectedRoute allowedRoles={["driver"]}><DriverManual /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
