@@ -261,6 +261,7 @@ export type Database = {
           mpesa_phone: string | null
           phone: string | null
           safety_terms_accepted_at: string | null
+          subscription_plan: string
           updated_at: string
         }
         Insert: {
@@ -272,6 +273,7 @@ export type Database = {
           mpesa_phone?: string | null
           phone?: string | null
           safety_terms_accepted_at?: string | null
+          subscription_plan?: string
           updated_at?: string
         }
         Update: {
@@ -283,6 +285,7 @@ export type Database = {
           mpesa_phone?: string | null
           phone?: string | null
           safety_terms_accepted_at?: string | null
+          subscription_plan?: string
           updated_at?: string
         }
         Relationships: []
@@ -356,6 +359,45 @@ export type Database = {
           referrer_id?: string
           status?: string
           trips_completed?: number
+        }
+        Relationships: []
+      }
+      regional_fare_tiers: {
+        Row: {
+          base_fare_basic: number
+          base_fare_boda: number
+          base_fare_xtra: number
+          created_at: string
+          id: string
+          is_active: boolean
+          per_km_rate: number
+          region_name: string
+          region_type: string
+          updated_at: string
+        }
+        Insert: {
+          base_fare_basic?: number
+          base_fare_boda?: number
+          base_fare_xtra?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          per_km_rate?: number
+          region_name: string
+          region_type?: string
+          updated_at?: string
+        }
+        Update: {
+          base_fare_basic?: number
+          base_fare_boda?: number
+          base_fare_xtra?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          per_km_rate?: number
+          region_name?: string
+          region_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
