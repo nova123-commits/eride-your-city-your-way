@@ -17,6 +17,7 @@ const CHECKS = [
 ];
 
 const BodaSafetyCheck: React.FC<BodaSafetyCheckProps> = ({ onComplete, onCancel }) => {
+  const { user } = useAuth();
   const [checked, setChecked] = useState<Set<string>>(new Set());
 
   const toggle = (id: string) => {
