@@ -27,6 +27,7 @@ import TripsHistory from "./pages/TripsHistory";
 import SafetyCenter from "./pages/SafetyCenter";
 import SettingsPage from "./pages/SettingsPage";
 import ManagerDashboard from "./pages/ManagerDashboard";
+import DriverManual from "./pages/DriverManual";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
