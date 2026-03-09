@@ -126,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const target = r ?? role;
     if (target === "driver") window.location.href = "/driver";
     else if (target === "admin") window.location.href = "/admin/overview";
+    else if (target === "manager") window.location.href = "/manager";
     else window.location.href = "/rider";
   }, [role]);
 

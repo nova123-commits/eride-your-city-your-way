@@ -50,12 +50,20 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     </div>
   );
 
-  // Admins can access ALL pages
-  if (role === "admin") {
+  // Manager has absolute superiority — can access ALL pages
+  if (role === "manager") {
     return <>{debugOverlay}{children}</>;
   }
 
-  // STRICT: if route requires specific roles and user doesn't match, redirect to THEIR role home (not /auth)
+  // Admins can access ALL pages except /manager
+  if (role === "admin") {
+    if (location.pathname.startsWith("/manager")) {
+      return <Navigate to="/admin/overview" replace />;
+    }
+    return <>{debugOverlay}{children}</>;
+  }
+
+  // STRICT: if route requires specific roles and user doesn't match, redirect to THEIR role home
   if (allowedRoles && !allowedRoles.includes(role)) {
     console.warn(`[eRide Guard] STRICT BLOCK: Role "${role}" cannot access ${location.pathname} (allowed: [${allowedRoles}])`);
     if (role === "rider") return <Navigate to="/rider" replace />;
