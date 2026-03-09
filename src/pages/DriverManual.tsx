@@ -9,7 +9,7 @@ const SECTIONS = [
     icon: Shield,
     title: '1. Safety First',
     items: [
-      'Safety is eRide's #1 priority — for drivers, riders, and the community.',
+      'Safety is eRide\'s #1 priority \u2014 for drivers, riders, and the community.',
       'Every driver must complete safety onboarding before their first trip.',
       'Violations of safety protocols may result in suspension or removal.',
     ],
