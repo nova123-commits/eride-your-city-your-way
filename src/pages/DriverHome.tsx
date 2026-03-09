@@ -30,6 +30,7 @@ const DRIVER_CATEGORY: string = 'basic'; // change to 'boda' to test safety chec
 
 const DriverHome: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState<DriverStep>('offline');
   const [countdown, setCountdown] = useState(15);
   const [otpInput, setOtpInput] = useState('');
@@ -38,7 +39,19 @@ const DriverHome: React.FC = () => {
   const [earnings] = useState(4250);
   const [showCredentials, setShowCredentials] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showSafetyOnboarding, setShowSafetyOnboarding] = useState(false);
+  const [safetyTermsAccepted, setSafetyTermsAccepted] = useState<boolean | null>(null);
   const { getLockedFare } = useFareLock();
+
+  // Check if driver has accepted safety terms
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('profiles').select('safety_terms_accepted_at').eq('id', user.id).single().then(({ data }) => {
+      const accepted = !!(data as any)?.safety_terms_accepted_at;
+      setSafetyTermsAccepted(accepted);
+      if (!accepted) setShowSafetyOnboarding(true);
+    });
+  }, [user]);
 
   useEffect(() => {
     if (step === 'online') {
