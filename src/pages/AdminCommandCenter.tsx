@@ -12,6 +12,7 @@ import LiveOperations from "@/components/admin/LiveOperations";
 import BroadcastComposer from "@/components/admin/BroadcastComposer";
 import ReferralsOffers from "@/components/admin/ReferralsOffers";
 import SystemHealth from "@/components/admin/SystemHealth";
+import LiveSOSAlerts from "@/components/admin/LiveSOSAlerts";
 
 const TABS = [
   { value: "heatmap", label: "Heatmap", icon: Flame },
