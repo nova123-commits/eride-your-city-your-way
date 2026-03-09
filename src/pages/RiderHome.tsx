@@ -71,8 +71,20 @@ const RiderHome: React.FC = () => {
   const handleSearch = () => setStep('categories');
   const handleCategoryConfirm = () => setStep('preferences');
 
-  const handleRequestRide = () => {
+  const handleRequestRide = async () => {
     setOtp(generateOTP());
+    // Lock the fare when rider confirms
+    if (selectedCategory && user) {
+      await lockFare({
+        categoryId: selectedCategory.id,
+        pickup,
+        destination: destination || 'JKIA Airport',
+        fareAmount: fare,
+        currency,
+        distanceKm,
+      });
+      setFareLocked(true);
+    }
     setStep('searching');
   };
 
