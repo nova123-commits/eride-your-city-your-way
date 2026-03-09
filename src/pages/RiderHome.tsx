@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, MapPin, Crown, Clock } from 'lucide-react';
+import { Menu, MapPin, Crown, Clock, Lock } from 'lucide-react';
 import RiderSidebar from '@/components/RiderSidebar';
 import { useNavigate } from 'react-router-dom';
 import ERideLogo from '@/components/ERideLogo';
@@ -34,6 +34,10 @@ import { downloadReceiptAsImage } from '@/lib/receiptGenerator';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import LowDataBanner from '@/components/LowDataBanner';
+import SafePickupPoints from '@/components/SafePickupPoints';
+import { useNetworkQuality } from '@/hooks/useNetworkQuality';
+import { useFareLock } from '@/hooks/useFareLock';
 
 type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'inTrip' | 'tripSummary' | 'payment' | 'receipt' | 'rating' | 'schedule';
 
@@ -43,8 +47,11 @@ const RiderHome: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { quality, isLowData } = useNetworkQuality();
+  const { lockFare, getLockedFare, releaseLock } = useFareLock();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [step, setStep] = useState<RiderStep>('home');
+  const [fareLocked, setFareLocked] = useState(false);
   const [pickup, setPickup] = useState('Current Location');
   const [destination, setDestination] = useState('');
   const [additionalStops, setAdditionalStops] = useState<string[]>([]);
@@ -64,8 +71,20 @@ const RiderHome: React.FC = () => {
   const handleSearch = () => setStep('categories');
   const handleCategoryConfirm = () => setStep('preferences');
 
-  const handleRequestRide = () => {
+  const handleRequestRide = async () => {
     setOtp(generateOTP());
+    // Lock the fare when rider confirms
+    if (selectedCategory && user) {
+      await lockFare({
+        categoryId: selectedCategory.id,
+        pickup,
+        destination: destination || 'JKIA Airport',
+        fareAmount: fare,
+        currency,
+        distanceKm,
+      });
+      setFareLocked(true);
+    }
     setStep('searching');
   };
 
@@ -73,7 +92,9 @@ const RiderHome: React.FC = () => {
     setStep('matched');
   }, []);
 
-  const handleCancelRide = () => {
+  const handleCancelRide = async () => {
+    await releaseLock();
+    setFareLocked(false);
     setStep('home');
     setSelectedCategory(null);
     setDestination('');
@@ -102,7 +123,9 @@ const RiderHome: React.FC = () => {
     });
   };
 
-  const handleRatingSubmit = () => {
+  const handleRatingSubmit = async () => {
+    await releaseLock();
+    setFareLocked(false);
     setStep('home');
     setSelectedCategory(null);
     setDestination('');
@@ -165,18 +188,28 @@ const RiderHome: React.FC = () => {
       </header>
 
       <PromoBanner />
+      <LowDataBanner quality={quality} />
 
       <div className="flex-1 relative bg-secondary overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <MapPin className="w-12 h-12 text-primary mx-auto mb-2 animate-bounce" />
-            <p className="text-xs text-muted-foreground">Map view</p>
+        {!isLowData && (
+          <>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <MapPin className="w-12 h-12 text-primary mx-auto mb-2 animate-bounce" />
+                <p className="text-xs text-muted-foreground">Map view</p>
+              </div>
+            </div>
+            <div className="absolute inset-0 opacity-[0.03]" style={{
+              backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
+              backgroundSize: '40px 40px',
+            }} />
+          </>
+        )}
+        {isLowData && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="text-xs text-muted-foreground">Maps paused — low data mode</p>
           </div>
-        </div>
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }} />
+        )}
 
         {step === 'matched' && (
           <motion.button
@@ -217,6 +250,7 @@ const RiderHome: React.FC = () => {
         <AnimatePresence mode="wait">
           {step === 'home' && (
             <div key="dest" className="space-y-3">
+              <SafePickupPoints onSelect={(addr) => setPickup(addr)} />
               <SavedPlaces onSelect={handleSavedPlaceSelect} />
               <DestinationInput
                 pickup={pickup}
@@ -258,6 +292,12 @@ const RiderHome: React.FC = () => {
               {additionalStops.filter(s => s.length > 0).length > 0 && (
                 <div className="text-xs text-muted-foreground px-1">
                   +KES {stopsFee} for {additionalStops.filter(s => s.length > 0).length} additional stop(s)
+                </div>
+              )}
+              {selectedCategory && (
+                <div className="flex items-center gap-1.5 px-1 text-xs text-primary font-medium">
+                  <Lock className="w-3 h-3" />
+                  Fare locks at {formatCurrency(fare, currency)} when you confirm
                 </div>
               )}
             </div>
