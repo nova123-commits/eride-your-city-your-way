@@ -40,7 +40,7 @@ const SECTIONS = [
     items: [
       'Verify the rider using the 4-digit OTP before starting every trip.',
       'Respect "Silent Trip" preferences — greet briefly, then minimize conversation.',
-      'Never refuse a trip based on the rider's destination, gender, or appearance.',
+      'Never refuse a trip based on the rider\'s destination, gender, or appearance.',
       'For "Guest" bookings, greet the guest by the name shown in the app.',
       'Keep the vehicle temperature comfortable and music at a low volume.',
     ],
