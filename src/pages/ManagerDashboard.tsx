@@ -357,7 +357,10 @@ export default function ManagerDashboard() {
               <Crown className="w-3 h-3 mr-1" /> Manager
             </Badge>
           </div>
-          <Button variant="ghost" size="sm" onClick={signOut}>Sign Out</Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => navigate("/manager/setup")}>Setup</Button>
+            <Button variant="ghost" size="sm" onClick={signOut}>Sign Out</Button>
+          </div>
         </div>
       </div>
 
