@@ -85,6 +85,11 @@ export default function WalletPage() {
     };
     fetchWallet();
 
+    // Fetch registered M-Pesa phone from profile
+    supabase.from('profiles').select('phone').eq('id', user.id).single().then(({ data }) => {
+      if (data?.phone) setRegisteredPhone(data.phone);
+    });
+
     const channel = supabase.channel('wallet-page')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'wallets', filter: `user_id=eq.${user.id}` },
         (payload: any) => { if (payload.new?.balance !== undefined) setBalance(Number(payload.new.balance)); })
