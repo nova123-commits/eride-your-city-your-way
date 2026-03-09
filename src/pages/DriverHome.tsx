@@ -56,7 +56,15 @@ const DriverHome: React.FC = () => {
   }, [step, countdown]);
 
   const handleGoOnline = () => setStep('selfie');
-  const handleSelfieVerified = () => setStep('online');
+  const handleSelfieVerified = () => {
+    if (DRIVER_CATEGORY === 'boda') {
+      setStep('bodaCheck');
+    } else {
+      setStep('online');
+    }
+  };
+  const handleBodaCheckComplete = () => setStep('online');
+  const handleBodaCheckCancel = () => setStep('offline');
   const handleSelfieCancelled = () => setStep('offline');
   const handleAccept = () => setStep('navigating');
   const handleDecline = () => { setStep('online'); setCountdown(15); };
