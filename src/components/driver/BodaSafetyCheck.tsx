@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Bike, HardHat, Shirt } from 'lucide-react';
+import { ShieldCheck, Bike, HardHat, Shirt, Fuel } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 interface BodaSafetyCheckProps {
   onComplete: () => void;
@@ -9,12 +11,13 @@ interface BodaSafetyCheckProps {
 }
 
 const CHECKS = [
-  { id: 'rider_helmet', label: 'Helmet for Rider (You)', icon: HardHat },
-  { id: 'passenger_helmet', label: 'Helmet for Passenger', icon: HardHat },
-  { id: 'reflector', label: 'Reflector Jacket', icon: Shirt },
+  { id: 'passenger_helmet', label: 'I have a spare helmet for the passenger', icon: HardHat },
+  { id: 'reflector', label: 'I am wearing my eRide reflector', icon: Shirt },
+  { id: 'fuel', label: 'My bike has enough fuel for a 10km trip', icon: Fuel },
 ];
 
 const BodaSafetyCheck: React.FC<BodaSafetyCheckProps> = ({ onComplete, onCancel }) => {
+  const { user } = useAuth();
   const [checked, setChecked] = useState<Set<string>>(new Set());
 
   const toggle = (id: string) => {
@@ -79,7 +82,16 @@ const BodaSafetyCheck: React.FC<BodaSafetyCheckProps> = ({ onComplete, onCancel 
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={onCancel} className="flex-1">Cancel</Button>
-          <Button onClick={onComplete} disabled={!allChecked} className="flex-1">
+          <Button onClick={async () => {
+            // Log compliance to DB for manager audit
+            if (user) {
+              await (supabase as any).from('boda_compliance_logs').insert({
+                driver_id: user.id,
+                checks: CHECKS.map(c => ({ id: c.id, label: c.label, checked: true })),
+              });
+            }
+            onComplete();
+          }} disabled={!allChecked} className="flex-1">
             {allChecked ? 'Go Online' : `${checked.size}/3 Checked`}
           </Button>
         </div>

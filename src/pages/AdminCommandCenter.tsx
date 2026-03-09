@@ -12,6 +12,7 @@ import LiveOperations from "@/components/admin/LiveOperations";
 import BroadcastComposer from "@/components/admin/BroadcastComposer";
 import ReferralsOffers from "@/components/admin/ReferralsOffers";
 import SystemHealth from "@/components/admin/SystemHealth";
+import LiveSOSAlerts from "@/components/admin/LiveSOSAlerts";
 
 const TABS = [
   { value: "heatmap", label: "Heatmap", icon: Flame },
@@ -40,7 +41,8 @@ export default function AdminCommandCenter() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-2xl font-bold text-foreground">Command Center</h1>
           <p className="text-sm text-muted-foreground mt-1">Advanced platform operations & analytics.</p>
-          <div className="mt-4">
+          <div className="mt-4 space-y-4">
+            <LiveSOSAlerts />
             <SystemHealth />
           </div>
         </motion.div>

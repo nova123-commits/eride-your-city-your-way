@@ -87,6 +87,20 @@ const LiveTripShare: React.FC<LiveTripShareProps> = ({ pickup, destination, driv
         </button>
       </div>
       <p className="text-[10px] text-muted-foreground">Anyone with this link can track your trip in real-time.</p>
+      <div className="flex gap-2">
+        <button
+          onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Track my eRide trip live: ${shareUrl}`)}`, '_blank')}
+          className="flex-1 py-2 rounded-lg bg-[hsl(142,70%,40%)] text-white text-[11px] font-medium btn-press"
+        >
+          WhatsApp
+        </button>
+        <button
+          onClick={() => window.open(`sms:?body=${encodeURIComponent(`Track my eRide trip live: ${shareUrl}`)}`, '_blank')}
+          className="flex-1 py-2 rounded-lg bg-secondary text-foreground text-[11px] font-medium btn-press"
+        >
+          SMS
+        </button>
+      </div>
     </motion.div>
   );
 };
