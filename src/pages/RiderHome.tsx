@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, MapPin, Crown, Clock } from 'lucide-react';
+import { Menu, MapPin, Crown, Clock, Lock } from 'lucide-react';
 import RiderSidebar from '@/components/RiderSidebar';
 import { useNavigate } from 'react-router-dom';
 import ERideLogo from '@/components/ERideLogo';
@@ -34,6 +34,10 @@ import { downloadReceiptAsImage } from '@/lib/receiptGenerator';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import LowDataBanner from '@/components/LowDataBanner';
+import SafePickupPoints from '@/components/SafePickupPoints';
+import { useNetworkQuality } from '@/hooks/useNetworkQuality';
+import { useFareLock } from '@/hooks/useFareLock';
 
 type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'inTrip' | 'tripSummary' | 'payment' | 'receipt' | 'rating' | 'schedule';
 
