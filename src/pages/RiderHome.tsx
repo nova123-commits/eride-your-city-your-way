@@ -67,6 +67,7 @@ const RiderHome: React.FC = () => {
     temperature: 'ac_low',
     musicGenre: 'None',
   });
+  const [guestBooking, setGuestBooking] = useState<GuestBooking>({ enabled: false, passengerName: '', passengerPhone: '' });
   const distanceKm = 7.2;
 
   const handleSearch = () => setStep('categories');
