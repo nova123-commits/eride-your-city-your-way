@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Wallet, ArrowDownRight, ArrowUpRight, Smartphone, CheckCircle2, Loader2, X, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Wallet, ArrowDownRight, ArrowUpRight, Smartphone, CheckCircle2, Loader2, X, AlertCircle, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import RiderSidebar from '@/components/RiderSidebar';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
