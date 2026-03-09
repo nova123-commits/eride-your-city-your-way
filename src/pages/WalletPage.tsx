@@ -62,6 +62,7 @@ export default function WalletPage() {
   const [balance, setBalance] = useState<number>(0);
   const [transactions, setTransactions] = useState<Tx[]>([]);
   const [loadingBalance, setLoadingBalance] = useState(true);
+  const [registeredPhone, setRegisteredPhone] = useState<string | null>(null);
 
   const [modal, setModal] = useState<ModalMode>(null);
   const [depositStage, setDepositStage] = useState<DepositStage>('form');
