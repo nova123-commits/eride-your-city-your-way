@@ -116,7 +116,13 @@ export default function WalletPage() {
 
   /* ── Reset modal state ──────────────────────────────────────── */
   const openModal = (mode: ModalMode) => {
-    setAmount(''); setPhone(''); setErrors({}); setDepositStage('form');
+    setAmount(''); setErrors({}); setDepositStage('form');
+    // For withdrawals, lock phone to registered number if driver
+    if (mode === 'withdraw' && role === 'driver' && registeredPhone) {
+      setPhone(registeredPhone);
+    } else {
+      setPhone('');
+    }
     setModal(mode);
   };
 
