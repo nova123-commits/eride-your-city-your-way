@@ -294,6 +294,12 @@ const RiderHome: React.FC = () => {
                   +KES {stopsFee} for {additionalStops.filter(s => s.length > 0).length} additional stop(s)
                 </div>
               )}
+              {selectedCategory && (
+                <div className="flex items-center gap-1.5 px-1 text-xs text-primary font-medium">
+                  <Lock className="w-3 h-3" />
+                  Fare locks at {formatCurrency(fare, currency)} when you confirm
+                </div>
+              )}
             </div>
           )}
           {step === 'preferences' && selectedCategory && (
