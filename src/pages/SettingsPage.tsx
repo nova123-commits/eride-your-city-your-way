@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, User, Bell, Lock, Globe, Moon, ChevronRight } from 'lucide-react';
+import { ArrowLeft, User, Bell, Lock, Globe, Moon, ChevronRight, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import RiderSidebar from '@/components/RiderSidebar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
