@@ -417,6 +417,8 @@ export default function ManagerDashboard() {
               </Card>
             </div>
 
+            <SystemHealth />
+
             {/* Commission Slider */}
             <Card>
               <CardHeader>
