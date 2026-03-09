@@ -16,6 +16,8 @@ import DriverDemandHeatmap from '@/components/driver/DriverDemandHeatmap';
 import HomeDestinationFilter from '@/components/driver/HomeDestinationFilter';
 import LiveProgressBar from '@/components/trip/LiveProgressBar';
 import PulseMapMarker from '@/components/trip/PulseMapMarker';
+import CancellationModal from '@/components/driver/CancellationModal';
+import { useFareLock } from '@/hooks/useFareLock';
 
 type DriverStep = 'offline' | 'selfie' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
