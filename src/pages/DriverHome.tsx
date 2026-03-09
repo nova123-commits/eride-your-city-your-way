@@ -23,7 +23,7 @@ import { useFareLock } from '@/hooks/useFareLock';
 type DriverStep = 'offline' | 'selfie' | 'bodaCheck' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
 // Simulated: in production, fetch from driver profile
-const DRIVER_CATEGORY = 'basic'; // change to 'boda' to test safety check
+const DRIVER_CATEGORY: string = 'basic'; // change to 'boda' to test safety check
 
 const DriverHome: React.FC = () => {
   const navigate = useNavigate();
