@@ -76,7 +76,8 @@ const DriverHome: React.FC = () => {
   };
 
   const mockCategory = RIDE_CATEGORIES[0];
-  const fare = calculateFare(mockCategory, 7.2);
+  const lockedFare = getLockedFare();
+  const fare = lockedFare ?? calculateFare(mockCategory, 7.2);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
