@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      broadcasts: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          sender_id: string
+          target_role: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          sender_id: string
+          target_role: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          sender_id?: string
+          target_role?: string
+          title?: string
+        }
+        Relationships: []
+      }
       lost_items: {
         Row: {
           admin_notes: string | null
@@ -41,6 +68,27 @@ export type Database = {
           reporter_id?: string
           status?: string
           trip_date?: string | null
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
         }
         Relationships: []
       }
