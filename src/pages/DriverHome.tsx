@@ -307,12 +307,28 @@ const DriverHome: React.FC = () => {
               />
               <div className="flex gap-3">
                 <SOSButton floating={false} />
+                <button onClick={() => setShowCancelModal(true)} className="py-4 px-4 rounded-2xl border border-destructive text-destructive font-bold text-sm active:scale-[0.98]">Cancel</button>
                 <button onClick={handleFinishTrip} className="flex-1 py-4 rounded-2xl brand-gradient text-primary-foreground font-bold text-sm active:scale-[0.98]">Finish Trip</button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Cancellation Modal */}
+      <AnimatePresence>
+        {showCancelModal && (
+          <CancellationModal
+            onCancel={() => setShowCancelModal(false)}
+            onConfirm={() => {
+              setShowCancelModal(false);
+              setStep('online');
+              setOtpInput('');
+              setCountdown(15);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       {step === 'rating' && (
         <RatingModal role="driver" name="Alice Wanjiku" onSubmit={handleRatingSubmit} />
