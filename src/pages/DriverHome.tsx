@@ -30,6 +30,8 @@ const DriverHome: React.FC = () => {
   const [otpError, setOtpError] = useState(false);
   const [earnings] = useState(4250);
   const [showCredentials, setShowCredentials] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const { getLockedFare } = useFareLock();
 
   useEffect(() => {
     if (step === 'online') {
