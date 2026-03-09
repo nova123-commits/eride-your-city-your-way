@@ -250,6 +250,7 @@ const RiderHome: React.FC = () => {
         <AnimatePresence mode="wait">
           {step === 'home' && (
             <div key="dest" className="space-y-3">
+              <SafePickupPoints onSelect={(addr) => setPickup(addr)} />
               <SavedPlaces onSelect={handleSavedPlaceSelect} />
               <DestinationInput
                 pickup={pickup}
