@@ -121,7 +121,7 @@ export default function PlatformSetup() {
     toast.success("Platform setup complete! 🎉");
     setCompleting(false);
     
-    if (role === "manager" || role === "super_admin") {
+    if (role === "manager" || (role as string) === "super_admin") {
       navigate("/manager", { replace: true });
     } else if (role === "admin") {
       navigate("/admin/overview", { replace: true });
