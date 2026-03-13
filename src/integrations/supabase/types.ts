@@ -158,6 +158,36 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_flags: {
+        Row: {
+          description: string | null
+          enabled: boolean
+          flag_key: string
+          flag_label: string
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          description?: string | null
+          enabled?: boolean
+          flag_key: string
+          flag_label?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          description?: string | null
+          enabled?: boolean
+          flag_key?: string
+          flag_label?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       locked_fares: {
         Row: {
           category_id: string
@@ -751,9 +781,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "rider" | "driver" | "admin" | "manager"
+      app_role:
+        | "rider"
+        | "driver"
+        | "admin"
+        | "manager"
+        | "super_admin"
+        | "operations_manager"
+        | "support_agent"
+        | "finance"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -881,7 +920,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["rider", "driver", "admin", "manager"],
+      app_role: [
+        "rider",
+        "driver",
+        "admin",
+        "manager",
+        "super_admin",
+        "operations_manager",
+        "support_agent",
+        "finance",
+      ],
     },
   },
 } as const
