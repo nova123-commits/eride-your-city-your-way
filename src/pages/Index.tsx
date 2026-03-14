@@ -12,8 +12,15 @@ const Index: React.FC = () => {
   // If logged in and role resolved, redirect to role home
   if (!loading && !roleLoading && user && role) {
     if (role === "driver") return <Navigate to="/driver" replace />;
-    if (role === "admin") return <Navigate to="/admin/overview" replace />;
+    if (role === "manager") return <Navigate to="/manager" replace />;
+    if (["admin", "super_admin", "operations_manager", "support_agent", "finance"].includes(role)) {
+      return <Navigate to="/admin" replace />;
+    }
     return <Navigate to="/rider" replace />;
+  }
+
+  if (!loading && !roleLoading && user && !role) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return (
