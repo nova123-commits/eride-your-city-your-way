@@ -1,26 +1,26 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, type AppRole } from "@/hooks/useAuth";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: Array<"rider" | "driver" | "admin" | "manager">;
+  allowedRoles?: AppRole[];
+  allowNoRole?: boolean;
 }
 
-export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { user, role, loading, roleLoading } = useAuth();
+export default function ProtectedRoute({ children, allowedRoles, allowNoRole = false }: ProtectedRouteProps) {
+  const { user, session, role, loading, roleLoading } = useAuth();
   const location = useLocation();
 
-  // === DIAGNOSTIC LOG ===
+  console.log("Session:", session);
+  console.log("Role:", role);
   console.log("[eRide Guard]", {
     path: location.pathname,
     userId: user?.id ?? "none",
-    role,
     loading,
     roleLoading,
     allowedRoles: allowedRoles ?? "any",
   });
 
-  // Wait for BOTH auth session AND role to be 100% resolved before any redirect
   if (loading || roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -32,44 +32,21 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     );
   }
 
-  if (!user) {
-    console.warn("[eRide Guard] No user session — redirecting to /auth");
-    return <Navigate to="/auth" replace />;
+  if (!session || !user) {
+    console.warn("[eRide Guard] No valid session — redirecting to /auth");
+    return <Navigate to="/auth" replace state={{ from: location }} />;
   }
 
-  // No role in DB — send to /auth so they can re-register properly
   if (!role) {
-    console.warn("[eRide Guard] Role is null after loading completed — redirecting to /auth");
-    return <Navigate to="/auth" replace />;
+    if (allowNoRole) return <>{children}</>;
+    console.warn("[eRide Guard] User has no role — redirecting to /onboarding");
+    return <Navigate to="/onboarding" replace />;
   }
 
-  // Debug overlay (temporary) — visible in bottom-right corner
-  const debugOverlay = (
-    <div className="fixed bottom-1 right-1 z-[9999] bg-black/80 text-[10px] text-green-400 px-2 py-1 rounded font-mono pointer-events-none">
-      Role: {role} | Path: {location.pathname}
-    </div>
-  );
-
-  // Manager has absolute superiority — can access ALL pages
-  if (role === "manager") {
-    return <>{debugOverlay}{children}</>;
-  }
-
-  // Admins can access ALL pages except /manager
-  if (role === "admin") {
-    if (location.pathname.startsWith("/manager")) {
-      return <Navigate to="/admin/overview" replace />;
-    }
-    return <>{debugOverlay}{children}</>;
-  }
-
-  // STRICT: if route requires specific roles and user doesn't match, redirect to THEIR role home
   if (allowedRoles && !allowedRoles.includes(role)) {
-    console.warn(`[eRide Guard] STRICT BLOCK: Role "${role}" cannot access ${location.pathname} (allowed: [${allowedRoles}])`);
-    if (role === "rider") return <Navigate to="/rider" replace />;
-    if (role === "driver") return <Navigate to="/driver" replace />;
+    console.warn(`[eRide Guard] STRICT BLOCK: Role "${role}" cannot access ${location.pathname}`);
     return <Navigate to="/" replace />;
   }
 
-  return <>{debugOverlay}{children}</>;
+  return <>{children}</>;
 }

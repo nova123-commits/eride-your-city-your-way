@@ -86,12 +86,13 @@ const App = () => {
               <Route path="/rider" element={<ProtectedRoute allowedRoles={["rider"]}><RiderHome /></ProtectedRoute>} />
               <Route path="/driver" element={<ProtectedRoute allowedRoles={["driver"]}><DriverHome /></ProtectedRoute>} />
               <Route path="/gold" element={<ProtectedRoute><GoldMember /></ProtectedRoute>} />
-              <Route path="/onboarding" element={<ProtectedRoute allowedRoles={["driver"]}><DriverOnboarding /></ProtectedRoute>} />
-              <Route path="/admin/overview" element={<ProtectedRoute allowedRoles={["admin"]}><AdminOverview /></ProtectedRoute>} />
-              <Route path="/admin/approvals" element={<ProtectedRoute allowedRoles={["admin"]}><AdminApprovals /></ProtectedRoute>} />
-              <Route path="/admin/tax" element={<ProtectedRoute allowedRoles={["admin"]}><TaxReport /></ProtectedRoute>} />
-              <Route path="/admin/command" element={<ProtectedRoute allowedRoles={["admin"]}><AdminCommandCenter /></ProtectedRoute>} />
-              <Route path="/admin/platform-setup" element={<ProtectedRoute allowedRoles={["admin", "manager"]}><PlatformSetup /></ProtectedRoute>} />
+              <Route path="/onboarding" element={<ProtectedRoute allowedRoles={["driver"]} allowNoRole><DriverOnboarding /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin", "manager", "super_admin"]}><Navigate to="/admin/overview" replace /></ProtectedRoute>} />
+              <Route path="/admin/overview" element={<ProtectedRoute allowedRoles={["admin", "manager", "super_admin"]}><AdminOverview /></ProtectedRoute>} />
+              <Route path="/admin/approvals" element={<ProtectedRoute allowedRoles={["admin", "manager", "super_admin"]}><AdminApprovals /></ProtectedRoute>} />
+              <Route path="/admin/tax" element={<ProtectedRoute allowedRoles={["admin", "manager", "super_admin"]}><TaxReport /></ProtectedRoute>} />
+              <Route path="/admin/command" element={<ProtectedRoute allowedRoles={["admin", "manager", "super_admin"]}><AdminCommandCenter /></ProtectedRoute>} />
+              <Route path="/admin/platform-setup" element={<ProtectedRoute allowedRoles={["admin", "manager", "super_admin"]}><PlatformSetup /></ProtectedRoute>} />
               <Route path="/wallet" element={<ProtectedRoute><WalletPage /></ProtectedRoute>} />
               <Route path="/driver/dashboard" element={<ProtectedRoute allowedRoles={["driver"]}><DriverDashboard /></ProtectedRoute>} />
               <Route path="/trips-history" element={<ProtectedRoute><TripsHistory /></ProtectedRoute>} />
@@ -102,8 +103,8 @@ const App = () => {
               <Route path="/terms" element={<Legal />} />
               <Route path="/help" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
               <Route path="/trip/:token" element={<SharedTrip />} />
-              <Route path="/manager" element={<ProtectedRoute allowedRoles={["manager"]}><ManagerDashboard /></ProtectedRoute>} />
-              <Route path="/manager/setup" element={<ProtectedRoute allowedRoles={["manager"]}><ManagerSetup /></ProtectedRoute>} />
+              <Route path="/manager" element={<ProtectedRoute allowedRoles={["manager", "super_admin"]}><ManagerDashboard /></ProtectedRoute>} />
+              <Route path="/manager/setup" element={<ProtectedRoute allowedRoles={["manager", "super_admin"]}><ManagerSetup /></ProtectedRoute>} />
               <Route path="/driver/manual" element={<ProtectedRoute allowedRoles={["driver"]}><DriverManual /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
