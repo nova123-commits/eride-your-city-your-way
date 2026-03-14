@@ -211,10 +211,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const navigateToRoleHome = useCallback((r?: AppRole | null) => {
     const target = r ?? role;
+
     if (target === "driver") window.location.href = "/driver";
-    else if (target === "admin") window.location.href = "/admin/overview";
+    else if (target === "rider") window.location.href = "/rider";
     else if (target === "manager") window.location.href = "/manager";
-    else window.location.href = "/rider";
+    else if (target === "admin" || target === "super_admin" || target === "operations_manager" || target === "support_agent" || target === "finance") {
+      window.location.href = "/admin";
+    } else {
+      window.location.href = "/onboarding";
+    }
   }, [role]);
 
   return (

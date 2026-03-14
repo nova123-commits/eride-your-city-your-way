@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import ERideLogo from "@/components/ERideLogo";
@@ -16,7 +16,7 @@ type RoleChoice = "rider" | "driver";
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, role, loading, roleLoading } = useAuth();
+  const { loading, roleLoading } = useAuth();
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,15 +25,7 @@ export default function Auth() {
   const [submitting, setSubmitting] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  // If already authenticated and role is loaded, redirect to role home
-  if (!loading && !roleLoading && user && role) {
-    if (role === "driver") return <Navigate to="/driver" replace />;
-    if (role === "admin") return <Navigate to="/admin/overview" replace />;
-    return <Navigate to="/rider" replace />;
-  }
-
-  // Show loader while auth state initializes
-  if (loading) {
+  if (loading || roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
@@ -57,39 +49,54 @@ export default function Auth() {
           emailRedirectTo: window.location.origin,
         },
       });
+
       if (error) {
         toast({ title: "Signup failed", description: error.message, variant: "destructive" });
       } else if (data.user && !data.session) {
-        // Email confirmation required
         toast({
           title: "Check your email",
           description: "We've sent a confirmation link. Please verify your email to sign in.",
         });
       } else if (data.user && data.session) {
-        // Auto-confirmed — redirect
         toast({ title: "Account created!", description: "Welcome to eRide." });
         if (roleChoice === "driver") navigate("/driver", { replace: true });
         else navigate("/rider", { replace: true });
       }
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
       if (error) {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
       } else if (data.user) {
-        // Fetch role and redirect
-        const { data: roleData } = await supabase
+        const { data: roleData, error: roleError } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", data.user.id)
           .limit(1)
-          .single();
+          .maybeSingle();
 
-        const r = roleData?.role ?? "rider";
-        if (r === "driver") navigate("/driver", { replace: true });
-        else if (r === "admin") navigate("/admin/overview", { replace: true });
-        else navigate("/rider", { replace: true });
+        if (roleError) {
+          toast({ title: "Login warning", description: "Could not resolve your role. Please complete onboarding.", variant: "destructive" });
+          navigate("/onboarding", { replace: true });
+          setSubmitting(false);
+          return;
+        }
+
+        const resolvedRole = roleData?.role;
+        if (!resolvedRole) {
+          navigate("/onboarding", { replace: true });
+        } else if (resolvedRole === "driver") {
+          navigate("/driver", { replace: true });
+        } else if (resolvedRole === "manager") {
+          navigate("/manager", { replace: true });
+        } else if (["admin", "super_admin", "operations_manager", "support_agent", "finance"].includes(resolvedRole)) {
+          navigate("/admin", { replace: true });
+        } else {
+          navigate("/rider", { replace: true });
+        }
       }
     }
+
     setSubmitting(false);
   };
 
@@ -111,7 +118,6 @@ export default function Auth() {
       >
         {mode === "signup" && (
           <>
-            {/* Role selector */}
             <div className="space-y-2">
               <p className="text-sm font-medium text-foreground">Are you a Rider or a Driver?</p>
               <div className="grid grid-cols-2 gap-3">
@@ -146,7 +152,6 @@ export default function Auth() {
               </div>
             </div>
 
-            {/* Full name */}
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
