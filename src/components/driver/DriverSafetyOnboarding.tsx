@@ -98,49 +98,65 @@ const DriverSafetyOnboarding: React.FC<DriverSafetyOnboardingProps> = ({ onCompl
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-background flex flex-col"
+      className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden"
     >
-      {/* Progress dots */}
-      <div className="flex items-center justify-center gap-2 pt-6 pb-4">
-        {SAFETY_SLIDES.map((_, i) => (
-          <div
-            key={i}
-            className={`h-1.5 rounded-full transition-all ${
-              i === currentSlide ? 'w-6 bg-primary' : i < currentSlide ? 'w-3 bg-primary/50' : 'w-3 bg-muted'
-            }`}
-          />
-        ))}
+      {/* Progress bar */}
+      <div className="shrink-0 px-6 pt-6 pb-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-muted-foreground">
+            Step {currentSlide + 1} of {SAFETY_SLIDES.length}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {Math.round(((currentSlide + 1) / SAFETY_SLIDES.length) * 100)}%
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {SAFETY_SLIDES.map((_, i) => (
+            <div
+              key={i}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === currentSlide
+                  ? 'flex-[2] bg-primary'
+                  : i < currentSlide
+                  ? 'flex-1 bg-primary/50'
+                  : 'flex-1 bg-muted'
+              }`}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Slide content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSlide}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.25 }}
-            className="w-full max-w-md text-center space-y-6"
-          >
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-              <Icon className="w-10 h-10 text-primary" />
-            </div>
-            <h2 className="text-xl font-bold text-foreground">{slide.title}</h2>
-            <ul className="space-y-3 text-left">
-              {slide.points.map((point, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
-                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        </AnimatePresence>
+      {/* Slide content — scrollable if needed */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-6">
+        <div className="flex flex-col items-center justify-center min-h-full py-6">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSlide}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.25 }}
+              className="w-full max-w-md text-center space-y-6"
+            >
+              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <Icon className="w-10 h-10 text-primary" />
+              </div>
+              <h2 className="text-xl font-bold text-foreground">{slide.title}</h2>
+              <ul className="space-y-3 text-left">
+                {slide.points.map((point, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
-      {/* Agreement + Navigation */}
-      <div className="px-6 pb-8 safe-bottom space-y-4">
+      {/* Agreement + Navigation — always pinned to bottom */}
+      <div className="shrink-0 px-6 pb-6 pt-4 border-t border-border bg-background space-y-4">
         {isLastSlide && (
           <label className="flex items-start gap-3 p-4 rounded-xl bg-accent/50 border border-border cursor-pointer">
             <Checkbox checked={agreed} onCheckedChange={(v) => setAgreed(!!v)} className="mt-0.5" />
@@ -151,7 +167,7 @@ const DriverSafetyOnboarding: React.FC<DriverSafetyOnboardingProps> = ({ onCompl
         )}
 
         <div className="flex gap-3">
-          {currentSlide > 0 && (
+          {currentSlide > 0 ? (
             <Button
               variant="outline"
               onClick={() => setCurrentSlide((s) => s - 1)}
@@ -159,7 +175,16 @@ const DriverSafetyOnboarding: React.FC<DriverSafetyOnboardingProps> = ({ onCompl
             >
               <ChevronLeft className="w-4 h-4 mr-1" /> Back
             </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={onComplete}
+              className="flex-1 text-muted-foreground"
+            >
+              Skip for now
+            </Button>
           )}
+
           {!isLastSlide ? (
             <Button
               onClick={() => setCurrentSlide((s) => s + 1)}
