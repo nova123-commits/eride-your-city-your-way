@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setRoleLoading(false);
   }, []);
 
-  const fetchRole = useCallback(async (userId: string): Promise<AppRole> => {
+  const fetchRole = useCallback(async (userId: string): Promise<AppRole | null> => {
     setRoleLoading(true);
     try {
       const { data, error } = await supabase
@@ -50,20 +50,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .select("role")
         .eq("user_id", userId)
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (error || !data?.role) {
-        console.warn("[eRide Auth] Role fetch failed, defaulting to rider:", error?.message);
-        setRole("rider");
-        return "rider";
+      if (error) {
+        console.warn("[eRide Auth] Role fetch failed:", error.message);
+        setRole(null);
+        return null;
       }
 
-      const r = data.role as AppRole;
-      setRole(r);
-      return r;
-    } catch {
-      setRole("rider");
-      return "rider";
+      if (!data?.role) {
+        console.warn("[eRide Auth] No role found for authenticated user");
+        setRole(null);
+        return null;
+      }
+
+      const resolvedRole = data.role as AppRole;
+      setRole(resolvedRole);
+      return resolvedRole;
+    } catch (error) {
+      console.error("[eRide Auth] Unexpected role fetch error:", error);
+      setRole(null);
+      return null;
     } finally {
       setRoleLoading(false);
     }
