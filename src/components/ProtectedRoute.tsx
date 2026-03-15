@@ -11,16 +11,7 @@ export default function ProtectedRoute({ children, allowedRoles, allowNoRole = f
   const { user, session, role, loading, roleLoading } = useAuth();
   const location = useLocation();
 
-  console.log("Session:", session);
-  console.log("Role:", role);
-  console.log("[eRide Guard]", {
-    path: location.pathname,
-    userId: user?.id ?? "none",
-    loading,
-    roleLoading,
-    allowedRoles: allowedRoles ?? "any",
-  });
-
+  // Wait for auth to resolve — never redirect while loading
   if (loading || roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -32,20 +23,24 @@ export default function ProtectedRoute({ children, allowedRoles, allowNoRole = f
     );
   }
 
+  // No session → /auth
   if (!session || !user) {
-    console.warn("[eRide Guard] No valid session — redirecting to /auth");
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
 
+  // User has no role
   if (!role) {
     if (allowNoRole) return <>{children}</>;
-    console.warn("[eRide Guard] User has no role — redirecting to /onboarding");
     return <Navigate to="/onboarding" replace />;
   }
 
+  // Role doesn't match allowed list
   if (allowedRoles && !allowedRoles.includes(role)) {
-    console.warn(`[eRide Guard] STRICT BLOCK: Role "${role}" cannot access ${location.pathname}`);
-    return <Navigate to="/" replace />;
+    // Redirect to role's home instead of generic /
+    if (role === "driver") return <Navigate to="/driver" replace />;
+    if (role === "rider") return <Navigate to="/rider" replace />;
+    if (role === "manager" || role === "super_admin") return <Navigate to="/manager" replace />;
+    return <Navigate to="/admin/overview" replace />;
   }
 
   return <>{children}</>;
