@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthContextType>({
   navigateToRoleHome: () => {},
 });
 
-const SESSION_HEALTH_INTERVAL = 5 * 60 * 1000; // Check every 5 minutes
+const SESSION_HEALTH_INTERVAL = 5 * 60 * 1000;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -34,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [roleLoading, setRoleLoading] = useState(true);
   const healthTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mountedRef = useRef(true);
+  const initDoneRef = useRef(false);
 
   const clearAuthState = useCallback(() => {
     setUser(null);
@@ -43,7 +44,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const fetchRole = useCallback(async (userId: string): Promise<AppRole | null> => {
-    setRoleLoading(true);
     try {
       const { data, error } = await supabase
         .from("user_roles")
@@ -54,70 +54,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         console.warn("[eRide Auth] Role fetch failed:", error.message);
-        setRole(null);
         return null;
       }
-
-      if (!data?.role) {
-        console.warn("[eRide Auth] No role found for authenticated user");
-        setRole(null);
-        return null;
-      }
-
-      const resolvedRole = data.role as AppRole;
-      setRole(resolvedRole);
-      return resolvedRole;
+      return (data?.role as AppRole) ?? null;
     } catch (error) {
       console.error("[eRide Auth] Unexpected role fetch error:", error);
-      setRole(null);
       return null;
-    } finally {
-      setRoleLoading(false);
     }
   }, []);
-
-  // Validate session is still valid server-side
-  const validateSession = useCallback(async (): Promise<boolean> => {
-    try {
-      const { data: { user: validUser }, error } = await supabase.auth.getUser();
-      if (!validUser || error) {
-        console.warn("[eRide Auth] Session validation failed:", error?.message);
-        return false;
-      }
-      return true;
-    } catch {
-      return false;
-    }
-  }, []);
-
-  // Periodic session health check
-  const startHealthCheck = useCallback(() => {
-    if (healthTimerRef.current) clearInterval(healthTimerRef.current);
-    healthTimerRef.current = setInterval(async () => {
-      if (!mountedRef.current) return;
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      if (!currentSession) {
-        console.warn("[eRide Auth] Health check: session expired");
-        clearAuthState();
-        window.location.href = "/auth";
-        return;
-      }
-      // Check token expiry — refresh proactively if within 2 minutes
-      const expiresAt = currentSession.expires_at;
-      if (expiresAt) {
-        const secondsLeft = expiresAt - Math.floor(Date.now() / 1000);
-        if (secondsLeft < 120) {
-          console.log("[eRide Auth] Token expiring soon, refreshing...");
-          const { error } = await supabase.auth.refreshSession();
-          if (error) {
-            console.error("[eRide Auth] Token refresh failed:", error.message);
-            clearAuthState();
-            window.location.href = "/auth";
-          }
-        }
-      }
-    }, SESSION_HEALTH_INTERVAL);
-  }, [clearAuthState]);
 
   const stopHealthCheck = useCallback(() => {
     if (healthTimerRef.current) {
@@ -126,36 +70,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Handle authenticated session
-  const handleSession = useCallback(async (newSession: Session | null, source: string) => {
-    if (!mountedRef.current) return;
-
-    if (!newSession?.user) {
-      console.log(`[eRide Auth] ${source}: No session`);
-      clearAuthState();
-      stopHealthCheck();
-      if (mountedRef.current) setLoading(false);
-      return;
-    }
-
-    setSession(newSession);
-    setUser(newSession.user);
-    setRole(null);
-    setRoleLoading(true);
-
-    const freshRole = await fetchRole(newSession.user.id);
-    console.log(`[eRide Auth] ${source}: role=${freshRole}, user=${newSession.user.id}`);
-
-    startHealthCheck();
-    if (mountedRef.current) setLoading(false);
-  }, [clearAuthState, fetchRole, startHealthCheck, stopHealthCheck]);
+  const startHealthCheck = useCallback(() => {
+    stopHealthCheck();
+    healthTimerRef.current = setInterval(async () => {
+      if (!mountedRef.current) return;
+      try {
+        const { data: { session: s } } = await supabase.auth.getSession();
+        if (!s) {
+          console.warn("[eRide Auth] Health check: no session");
+          clearAuthState();
+          return;
+        }
+        const expiresAt = s.expires_at;
+        if (expiresAt) {
+          const secondsLeft = expiresAt - Math.floor(Date.now() / 1000);
+          if (secondsLeft < 120) {
+            console.log("[eRide Auth] Proactive token refresh");
+            await supabase.auth.refreshSession();
+          }
+        }
+      } catch {
+        // silent
+      }
+    }, SESSION_HEALTH_INTERVAL);
+  }, [stopHealthCheck, clearAuthState]);
 
   useEffect(() => {
     mountedRef.current = true;
 
-    // 1. Set up auth state listener FIRST
+    // 1. Listen for auth events
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event, newSession) => {
         if (!mountedRef.current) return;
         console.log("[eRide Auth] Event:", event);
 
@@ -167,33 +112,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (event === "TOKEN_REFRESHED") {
-          console.log("[eRide Auth] Token refreshed successfully");
-          setSession(session);
+          setSession(newSession);
           return;
         }
 
-        await handleSession(session, `onAuthStateChange(${event})`);
+        // For SIGNED_IN and INITIAL_SESSION events
+        if (newSession?.user) {
+          setSession(newSession);
+          setUser(newSession.user);
+          setRoleLoading(true);
+          const r = await fetchRole(newSession.user.id);
+          if (mountedRef.current) {
+            setRole(r);
+            setRoleLoading(false);
+            setLoading(false);
+            startHealthCheck();
+          }
+        } else {
+          clearAuthState();
+          stopHealthCheck();
+          if (mountedRef.current) setLoading(false);
+        }
       }
     );
 
-    // 2. Then validate existing session
+    // 2. Check existing session
     (async () => {
-      const { data: { session: existingSession } } = await supabase.auth.getSession();
+      const { data: { session: existing } } = await supabase.auth.getSession();
+      if (!mountedRef.current) return;
 
-      if (existingSession?.user) {
-        // Validate server-side that user still exists
-        const valid = await validateSession();
-        if (!valid) {
-          console.warn("[eRide Auth] Stale session detected — clearing");
+      if (existing?.user) {
+        // Validate server-side
+        const { data: { user: validUser }, error } = await supabase.auth.getUser();
+        if (!validUser || error) {
+          console.warn("[eRide Auth] Stale session — clearing");
           await supabase.auth.signOut();
           clearAuthState();
-          if (mountedRef.current) setLoading(false);
-          window.location.href = "/auth";
+          setLoading(false);
           return;
         }
+        setSession(existing);
+        setUser(existing.user);
+        setRoleLoading(true);
+        const r = await fetchRole(existing.user.id);
+        if (mountedRef.current) {
+          setRole(r);
+          setRoleLoading(false);
+          setLoading(false);
+          startHealthCheck();
+        }
+      } else {
+        clearAuthState();
+        setLoading(false);
       }
-
-      await handleSession(existingSession, "getSession");
+      initDoneRef.current = true;
     })();
 
     return () => {
@@ -201,7 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription.unsubscribe();
       stopHealthCheck();
     };
-  }, [handleSession, clearAuthState, stopHealthCheck, validateSession]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const signOut = useCallback(async () => {
     stopHealthCheck();
@@ -211,12 +183,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const navigateToRoleHome = useCallback((r?: AppRole | null) => {
     const target = r ?? role;
-
     if (target === "driver") window.location.href = "/driver";
     else if (target === "rider") window.location.href = "/rider";
-    else if (target === "manager") window.location.href = "/manager";
-    else if (target === "admin" || target === "super_admin" || target === "operations_manager" || target === "support_agent" || target === "finance") {
-      window.location.href = "/admin";
+    else if (target === "manager" || target === "super_admin") window.location.href = "/manager";
+    else if (target === "admin" || target === "operations_manager" || target === "support_agent" || target === "finance") {
+      window.location.href = "/admin/overview";
     } else {
       window.location.href = "/onboarding";
     }

@@ -16,7 +16,7 @@ type RoleChoice = "rider" | "driver";
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { loading, roleLoading } = useAuth();
+  const { user, role, loading, roleLoading } = useAuth();
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,6 +25,7 @@ export default function Auth() {
   const [submitting, setSubmitting] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
+  // Show loader while auth resolving
   if (loading || roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -32,6 +33,9 @@ export default function Auth() {
       </div>
     );
   }
+
+  // Already authenticated — redirect based on role (no auto-redirect from /auth itself, only after session is confirmed)
+  // We do NOT auto-redirect here to avoid loops. User lands on /auth intentionally.
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,10 +46,7 @@ export default function Auth() {
         email,
         password,
         options: {
-          data: {
-            full_name: fullName,
-            role: roleChoice,
-          },
+          data: { full_name: fullName, role: roleChoice },
           emailRedirectTo: window.location.origin,
         },
       });
@@ -59,8 +60,13 @@ export default function Auth() {
         });
       } else if (data.user && data.session) {
         toast({ title: "Account created!", description: "Welcome to eRide." });
-        if (roleChoice === "driver") navigate("/driver", { replace: true });
-        else navigate("/rider", { replace: true });
+        // Let onAuthStateChange handle the role fetch, then redirect
+        const { data: roleData } = await supabase
+          .from("user_roles").select("role").eq("user_id", data.user.id).limit(1).maybeSingle();
+        const r = roleData?.role;
+        if (r === "driver") navigate("/driver", { replace: true });
+        else if (r === "rider") navigate("/rider", { replace: true });
+        else navigate("/onboarding", { replace: true });
       }
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -68,31 +74,20 @@ export default function Auth() {
       if (error) {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
       } else if (data.user) {
-        const { data: roleData, error: roleError } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", data.user.id)
-          .limit(1)
-          .maybeSingle();
-
-        if (roleError) {
-          toast({ title: "Login warning", description: "Could not resolve your role. Please complete onboarding.", variant: "destructive" });
-          navigate("/onboarding", { replace: true });
-          setSubmitting(false);
-          return;
-        }
+        const { data: roleData } = await supabase
+          .from("user_roles").select("role").eq("user_id", data.user.id).limit(1).maybeSingle();
 
         const resolvedRole = roleData?.role;
         if (!resolvedRole) {
           navigate("/onboarding", { replace: true });
         } else if (resolvedRole === "driver") {
           navigate("/driver", { replace: true });
-        } else if (resolvedRole === "manager") {
-          navigate("/manager", { replace: true });
-        } else if (["admin", "super_admin", "operations_manager", "support_agent", "finance"].includes(resolvedRole)) {
-          navigate("/admin", { replace: true });
-        } else {
+        } else if (resolvedRole === "rider") {
           navigate("/rider", { replace: true });
+        } else if (resolvedRole === "manager" || resolvedRole === "super_admin") {
+          navigate("/manager", { replace: true });
+        } else {
+          navigate("/admin/overview", { replace: true });
         }
       }
     }
@@ -110,94 +105,46 @@ export default function Auth() {
       </motion.div>
 
       <motion.form
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        onSubmit={handleSubmit}
-        className="w-full max-w-sm space-y-4"
+        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+        onSubmit={handleSubmit} className="w-full max-w-sm space-y-4"
       >
         {mode === "signup" && (
           <>
             <div className="space-y-2">
               <p className="text-sm font-medium text-foreground">Are you a Rider or a Driver?</p>
               <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setRoleChoice("rider")}
-                  className={`flex items-center gap-3 p-4 rounded-2xl border transition-all ${
-                    roleChoice === "rider"
-                      ? "border-primary bg-accent"
-                      : "border-border bg-card hover:border-primary/40"
-                  }`}
-                >
+                <button type="button" onClick={() => setRoleChoice("rider")}
+                  className={`flex items-center gap-3 p-4 rounded-2xl border transition-all ${roleChoice === "rider" ? "border-primary bg-accent" : "border-border bg-card hover:border-primary/40"}`}>
                   <Car className={`w-6 h-6 ${roleChoice === "rider" ? "text-primary" : "text-muted-foreground"}`} />
-                  <span className={`font-semibold text-sm ${roleChoice === "rider" ? "text-primary" : "text-foreground"}`}>
-                    Rider
-                  </span>
+                  <span className={`font-semibold text-sm ${roleChoice === "rider" ? "text-primary" : "text-foreground"}`}>Rider</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setRoleChoice("driver")}
-                  className={`flex items-center gap-3 p-4 rounded-2xl border transition-all ${
-                    roleChoice === "driver"
-                      ? "border-primary bg-accent"
-                      : "border-border bg-card hover:border-primary/40"
-                  }`}
-                >
+                <button type="button" onClick={() => setRoleChoice("driver")}
+                  className={`flex items-center gap-3 p-4 rounded-2xl border transition-all ${roleChoice === "driver" ? "border-primary bg-accent" : "border-border bg-card hover:border-primary/40"}`}>
                   <Bike className={`w-6 h-6 ${roleChoice === "driver" ? "text-primary" : "text-muted-foreground"}`} />
-                  <span className={`font-semibold text-sm ${roleChoice === "driver" ? "text-primary" : "text-foreground"}`}>
-                    Driver
-                  </span>
+                  <span className={`font-semibold text-sm ${roleChoice === "driver" ? "text-primary" : "text-foreground"}`}>Driver</span>
                 </button>
               </div>
             </div>
-
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Full name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="pl-10"
-                required
-              />
+              <Input placeholder="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} className="pl-10" required />
             </div>
           </>
         )}
 
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            type="email"
-            placeholder="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="pl-10"
-            required
-          />
+          <Input type="email" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10" required />
         </div>
 
         <div className="relative">
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="pl-10"
-            minLength={6}
-            required
-          />
+          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10" minLength={6} required />
         </div>
 
         {mode === "signup" && (
           <label className="flex items-start gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={agreedToTerms}
-              onChange={(e) => setAgreedToTerms(e.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-border accent-primary"
-            />
+            <input type="checkbox" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} className="mt-1 h-4 w-4 rounded border-border accent-primary" />
             <span className="text-xs text-muted-foreground leading-relaxed">
               I agree to the eRide{" "}
               <Link to="/legal" className="text-primary font-medium hover:underline">Terms of Service</Link>
@@ -213,20 +160,14 @@ export default function Auth() {
 
         <p className="text-center text-sm text-muted-foreground">
           {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
-          <button
-            type="button"
-            onClick={() => setMode(mode === "login" ? "signup" : "login")}
-            className="text-primary font-medium hover:underline"
-          >
+          <button type="button" onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-primary font-medium hover:underline">
             {mode === "login" ? "Sign up" : "Sign in"}
           </button>
         </p>
       </motion.form>
 
       <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
         onClick={() => navigate("/")}
         className="mt-8 flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
       >

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, ChevronRight, ChevronLeft, CheckCircle2, AlertTriangle, Bike, Car, Users, Phone } from 'lucide-react';
+import { Shield, ChevronRight, ChevronLeft, CheckCircle2, AlertTriangle, Car, Users, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,7 +32,7 @@ const SAFETY_SLIDES = [
     points: [
       'Always verify the rider using the 4-digit OTP before starting.',
       'Respect "Silent Trip" preferences — greet briefly, then minimize chat.',
-      'Never refuse a trip based on the rider\'s destination or appearance.',
+      "Never refuse a trip based on the rider's destination or appearance.",
     ],
   },
   {
@@ -70,14 +70,30 @@ const DriverSafetyOnboarding: React.FC<DriverSafetyOnboardingProps> = ({ onCompl
   const slide = SAFETY_SLIDES[currentSlide];
   const Icon = slide.icon;
 
+  const goNext = useCallback(() => {
+    if (currentSlide < SAFETY_SLIDES.length - 1) setCurrentSlide(s => s + 1);
+  }, [currentSlide]);
+
+  const goPrev = useCallback(() => {
+    if (currentSlide > 0) setCurrentSlide(s => s - 1);
+  }, [currentSlide]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goNext();
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goPrev();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [goNext, goPrev]);
+
   const handleAccept = async () => {
     if (!user || !agreed) return;
     setSubmitting(true);
     try {
       const now = new Date().toISOString();
-      // Update profile with acceptance timestamp
       await supabase.from('profiles').update({ safety_terms_accepted_at: now } as any).eq('id', user.id);
-      // Log to audit trail
       await supabase.from('audit_trail').insert({
         actor_id: user.id,
         actor_role: 'driver',
@@ -100,7 +116,7 @@ const DriverSafetyOnboarding: React.FC<DriverSafetyOnboardingProps> = ({ onCompl
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden"
     >
-      {/* Progress bar */}
+      {/* Progress bar — clickable */}
       <div className="shrink-0 px-6 pt-6 pb-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium text-muted-foreground">
@@ -112,9 +128,10 @@ const DriverSafetyOnboarding: React.FC<DriverSafetyOnboardingProps> = ({ onCompl
         </div>
         <div className="flex items-center gap-1.5">
           {SAFETY_SLIDES.map((_, i) => (
-            <div
+            <button
               key={i}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
+              onClick={() => setCurrentSlide(i)}
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer hover:opacity-80 ${
                 i === currentSlide
                   ? 'flex-[2] bg-primary'
                   : i < currentSlide
@@ -126,7 +143,7 @@ const DriverSafetyOnboarding: React.FC<DriverSafetyOnboardingProps> = ({ onCompl
         </div>
       </div>
 
-      {/* Slide content — scrollable if needed */}
+      {/* Slide content */}
       <div className="flex-1 min-h-0 overflow-y-auto px-6">
         <div className="flex flex-col items-center justify-center min-h-full py-6">
           <AnimatePresence mode="wait">
@@ -155,7 +172,7 @@ const DriverSafetyOnboarding: React.FC<DriverSafetyOnboardingProps> = ({ onCompl
         </div>
       </div>
 
-      {/* Agreement + Navigation — always pinned to bottom */}
+      {/* Navigation — always visible at bottom */}
       <div className="shrink-0 px-6 pb-6 pt-4 border-t border-border bg-background space-y-4">
         {isLastSlide && (
           <label className="flex items-start gap-3 p-4 rounded-xl bg-accent/50 border border-border cursor-pointer">
@@ -168,36 +185,21 @@ const DriverSafetyOnboarding: React.FC<DriverSafetyOnboardingProps> = ({ onCompl
 
         <div className="flex gap-3">
           {currentSlide > 0 ? (
-            <Button
-              variant="outline"
-              onClick={() => setCurrentSlide((s) => s - 1)}
-              className="flex-1"
-            >
+            <Button variant="outline" onClick={goPrev} className="flex-1">
               <ChevronLeft className="w-4 h-4 mr-1" /> Back
             </Button>
           ) : (
-            <Button
-              variant="ghost"
-              onClick={onComplete}
-              className="flex-1 text-muted-foreground"
-            >
+            <Button variant="ghost" onClick={onComplete} className="flex-1 text-muted-foreground">
               Skip for now
             </Button>
           )}
 
           {!isLastSlide ? (
-            <Button
-              onClick={() => setCurrentSlide((s) => s + 1)}
-              className="flex-1"
-            >
+            <Button onClick={goNext} className="flex-1">
               Next <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
-            <Button
-              onClick={handleAccept}
-              disabled={!agreed || submitting}
-              className="flex-1"
-            >
+            <Button onClick={handleAccept} disabled={!agreed || submitting} className="flex-1">
               {submitting ? 'Saving...' : 'Accept & Continue'}
             </Button>
           )}
