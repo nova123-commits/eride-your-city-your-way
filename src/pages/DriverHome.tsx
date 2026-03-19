@@ -370,8 +370,8 @@ const DriverHome: React.FC = () => {
                   <div className="flex items-center gap-1 text-xs text-primary font-medium"><div className="w-2 h-2 rounded-full bg-primary animate-pulse" />Live</div>
                 </div>
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-primary" /><span className="text-muted-foreground">Westlands Mall</span></div>
-                  <div className="flex items-center gap-2"><Navigation className="w-2.5 h-2.5 text-destructive" /><span className="text-foreground font-medium">JKIA Airport, Terminal 1</span></div>
+                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-primary" /><span className="text-muted-foreground">{ridePickup}</span></div>
+                  <div className="flex items-center gap-2"><Navigation className="w-2.5 h-2.5 text-destructive" /><span className="text-foreground font-medium">{rideDestination}</span></div>
                 </div>
                 <div className="mt-3 flex items-center justify-between bg-secondary rounded-xl p-3">
                   <div><p className="text-xs text-muted-foreground">Fare</p><p className="font-bold text-foreground">KES {fare}</p></div>
