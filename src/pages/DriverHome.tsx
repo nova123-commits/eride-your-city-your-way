@@ -334,7 +334,7 @@ const DriverHome: React.FC = () => {
                   </div>
                   <div className="ml-auto flex items-center gap-1 text-sm text-muted-foreground"><Clock className="w-3.5 h-3.5" /><span>3 min away</span></div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="w-3.5 h-3.5 text-primary" /><span>Westlands Mall, Nairobi</span></div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="w-3.5 h-3.5 text-primary" /><span>{ridePickup}</span></div>
               </div>
               <button onClick={handleArrived} className="w-full py-4 rounded-2xl brand-gradient text-primary-foreground font-bold text-sm active:scale-[0.98]">I've Arrived</button>
             </motion.div>
