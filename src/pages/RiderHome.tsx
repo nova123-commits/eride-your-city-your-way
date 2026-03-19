@@ -478,7 +478,7 @@ const RiderHome: React.FC = () => {
       {step === 'rating' && (
         <RatingModal
           role="rider"
-          name={MOCK_DRIVER.name}
+          name={driverName}
           onSubmit={handleRatingSubmit}
         />
       )}
