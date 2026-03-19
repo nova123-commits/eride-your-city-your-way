@@ -483,6 +483,8 @@ const RiderHome: React.FC = () => {
         <RatingModal
           role="rider"
           name={driverName}
+          rideId={rideId}
+          ratedUserId={ride?.driver_id}
           onSubmit={handleRatingSubmit}
         />
       )}
