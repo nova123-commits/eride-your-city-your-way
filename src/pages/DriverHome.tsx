@@ -375,7 +375,7 @@ const DriverHome: React.FC = () => {
                 </div>
                 <div className="mt-3 flex items-center justify-between bg-secondary rounded-xl p-3">
                   <div><p className="text-xs text-muted-foreground">Fare</p><p className="font-bold text-foreground">KES {fare}</p></div>
-                  <div><p className="text-xs text-muted-foreground">Distance</p><p className="font-bold text-foreground">7.2 km</p></div>
+                  <div><p className="text-xs text-muted-foreground">Distance</p><p className="font-bold text-foreground">{rideDistance} km</p></div>
                   <div><p className="text-xs text-muted-foreground">Your Take (83.5%)</p><p className="font-bold text-primary">KES {Math.round(fare * 0.835)}</p></div>
                 </div>
               </div>
