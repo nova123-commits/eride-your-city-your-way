@@ -22,11 +22,13 @@ import PulseMapMarker from '@/components/trip/PulseMapMarker';
 import CancellationModal from '@/components/driver/CancellationModal';
 import BodaSafetyCheck from '@/components/driver/BodaSafetyCheck';
 import { useFareLock } from '@/hooks/useFareLock';
+import { useDriverRides } from '@/hooks/useDriverRides';
+import { useDriverEarnings } from '@/hooks/useDriverEarnings';
+import { formatCurrency } from '@/lib/currency';
 
 type DriverStep = 'offline' | 'selfie' | 'bodaCheck' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
-// Simulated: in production, fetch from driver profile
-const DRIVER_CATEGORY: string = 'basic'; // change to 'boda' to test safety check
+const DRIVER_CATEGORY: string = 'basic';
 
 const DriverHome: React.FC = () => {
   const navigate = useNavigate();
