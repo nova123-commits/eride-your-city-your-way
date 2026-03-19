@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, MapPin, Crown, Clock, Lock } from 'lucide-react';
 import RiderSidebar from '@/components/RiderSidebar';
@@ -22,7 +22,7 @@ import SavedPlaces from '@/components/SavedPlaces';
 import ScheduleRide from '@/components/ScheduleRide';
 import LiveTripShare from '@/components/LiveTripShare';
 import { type AccessibilityPrefs } from '@/components/AccessibilityToggles';
-import { RIDE_CATEGORIES, calculateFare, generateOTP, MOCK_DRIVER, isPeakHour, type RideCategory } from '@/lib/ride';
+import { RIDE_CATEGORIES, calculateFare, generateOTP, isPeakHour, type RideCategory } from '@/lib/ride';
 import { calculateFareBreakdown, formatCurrency, convertCurrency, type CurrencyCode } from '@/lib/currency';
 import RoleNav from '@/components/RoleNav';
 import PromoBanner from '@/components/PromoBanner';
@@ -39,6 +39,8 @@ import SafePickupPoints from '@/components/SafePickupPoints';
 import { useNetworkQuality } from '@/hooks/useNetworkQuality';
 import { useFareLock } from '@/hooks/useFareLock';
 import BookForSomeone, { type GuestBooking } from '@/components/BookForSomeone';
+import { useRideRequest } from '@/hooks/useRideRequest';
+import { useRideRealtime } from '@/hooks/useRideRealtime';
 
 type RiderStep = 'home' | 'categories' | 'preferences' | 'searching' | 'matched' | 'inTrip' | 'tripSummary' | 'payment' | 'receipt' | 'rating' | 'schedule';
 
