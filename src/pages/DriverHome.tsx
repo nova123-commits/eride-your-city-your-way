@@ -313,8 +313,8 @@ const DriverHome: React.FC = () => {
               </div>
               <div className="flex items-center justify-between bg-secondary rounded-xl p-3">
                 <div><p className="text-xs text-muted-foreground">Fare</p><p className="font-bold text-foreground">KES {fare}</p></div>
-                <div><p className="text-xs text-muted-foreground">Distance</p><p className="font-bold text-foreground">7.2 km</p></div>
-                <div><p className="text-xs text-muted-foreground">Category</p><p className="font-bold text-foreground">Basic</p></div>
+                <div><p className="text-xs text-muted-foreground">Distance</p><p className="font-bold text-foreground">{rideDistance} km</p></div>
+                <div><p className="text-xs text-muted-foreground">Category</p><p className="font-bold text-foreground capitalize">{rideCategory}</p></div>
               </div>
               <div className="flex gap-3">
                 <button onClick={handleDecline} className="flex-1 py-3 rounded-xl border border-border text-muted-foreground font-semibold text-sm">Decline</button>
