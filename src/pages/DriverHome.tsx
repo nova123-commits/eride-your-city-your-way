@@ -22,21 +22,23 @@ import PulseMapMarker from '@/components/trip/PulseMapMarker';
 import CancellationModal from '@/components/driver/CancellationModal';
 import BodaSafetyCheck from '@/components/driver/BodaSafetyCheck';
 import { useFareLock } from '@/hooks/useFareLock';
+import { useDriverRides } from '@/hooks/useDriverRides';
+import { useDriverEarnings } from '@/hooks/useDriverEarnings';
+import { formatCurrency } from '@/lib/currency';
 
 type DriverStep = 'offline' | 'selfie' | 'bodaCheck' | 'online' | 'request' | 'navigating' | 'otp' | 'trip' | 'rating';
 
-// Simulated: in production, fetch from driver profile
-const DRIVER_CATEGORY: string = 'basic'; // change to 'boda' to test safety check
+const DRIVER_CATEGORY: string = 'basic';
 
 const DriverHome: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { incomingRide, activeRide, isOnline, goOnline, goOffline, acceptRide, declineRide, updateRideStatus } = useDriverRides();
+  const { summary } = useDriverEarnings();
   const [step, setStep] = useState<DriverStep>('offline');
   const [countdown, setCountdown] = useState(15);
   const [otpInput, setOtpInput] = useState('');
-  const [correctOtp] = useState(generateOTP());
   const [otpError, setOtpError] = useState(false);
-  const [earnings] = useState(4250);
   const [showCredentials, setShowCredentials] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showSafetyOnboarding, setShowSafetyOnboarding] = useState(false);
@@ -53,41 +55,67 @@ const DriverHome: React.FC = () => {
     });
   }, [user]);
 
+  // React to incoming ride requests from realtime
   useEffect(() => {
-    if (step === 'online') {
-      const t = setTimeout(() => setStep('request'), 3000);
-      return () => clearTimeout(t);
+    if (incomingRide && step === 'online') {
+      setStep('request');
+      setCountdown(15);
     }
-  }, [step]);
+  }, [incomingRide]);
 
+  // Countdown for ride request
   useEffect(() => {
     if (step === 'request' && countdown > 0) {
       const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
       return () => clearTimeout(t);
     }
     if (step === 'request' && countdown === 0) {
+      declineRide();
       setStep('online');
       setCountdown(15);
     }
-  }, [step, countdown]);
+  }, [step, countdown, declineRide]);
 
   const handleGoOnline = () => setStep('selfie');
-  const handleSelfieVerified = () => {
+  const handleSelfieVerified = async () => {
     if (DRIVER_CATEGORY === 'boda') {
       setStep('bodaCheck');
     } else {
+      await goOnline();
       setStep('online');
     }
   };
-  const handleBodaCheckComplete = () => setStep('online');
+  const handleBodaCheckComplete = async () => {
+    await goOnline();
+    setStep('online');
+  };
   const handleBodaCheckCancel = () => setStep('offline');
   const handleSelfieCancelled = () => setStep('offline');
-  const handleAccept = () => setStep('navigating');
-  const handleDecline = () => { setStep('online'); setCountdown(15); };
-  const handleArrived = () => setStep('otp');
 
-  const handleOtpSubmit = () => {
+  const handleAccept = async () => {
+    if (!incomingRide) return;
+    const ok = await acceptRide(incomingRide.id);
+    if (ok) setStep('navigating');
+  };
+
+  const handleDecline = () => {
+    declineRide();
+    setStep('online');
+    setCountdown(15);
+  };
+
+  const handleArrived = async () => {
+    if (activeRide) {
+      await updateRideStatus(activeRide.id, 'driver_assigned', 'driver_arriving');
+    }
+    setStep('otp');
+  };
+
+  const handleOtpSubmit = async () => {
+    if (!activeRide) return;
+    const correctOtp = activeRide.otp_code ?? '';
     if (otpInput === correctOtp) {
+      await updateRideStatus(activeRide.id, 'driver_arriving', 'ride_started');
       setStep('trip');
       setOtpError(false);
     } else {
@@ -95,7 +123,12 @@ const DriverHome: React.FC = () => {
     }
   };
 
-  const handleFinishTrip = () => setStep('rating');
+  const handleFinishTrip = async () => {
+    if (activeRide) {
+      await updateRideStatus(activeRide.id, 'ride_started', 'ride_completed');
+    }
+    setStep('rating');
+  };
 
   const handleRatingSubmit = () => {
     setStep('online');
@@ -103,9 +136,12 @@ const DriverHome: React.FC = () => {
     setCountdown(15);
   };
 
-  const mockCategory = RIDE_CATEGORIES[0];
-  const lockedFare = getLockedFare();
-  const fare = lockedFare ?? calculateFare(mockCategory, 7.2);
+  const currentRide = activeRide ?? incomingRide;
+  const fare = currentRide?.estimated_fare ?? getLockedFare() ?? calculateFare(RIDE_CATEGORIES[0], 7.2);
+  const ridePickup = currentRide?.pickup_address ?? 'Westlands Mall, Nairobi';
+  const rideDestination = currentRide?.destination_address ?? 'JKIA Airport, Terminal 1';
+  const rideDistance = currentRide?.distance_km ?? 7.2;
+  const rideCategory = currentRide?.category ?? 'basic';
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -152,7 +188,7 @@ const DriverHome: React.FC = () => {
           </button>
           <div className="text-right">
             <p className="text-xs text-muted-foreground">Today</p>
-            <p className="font-bold text-foreground text-sm">KES {earnings.toLocaleString()}</p>
+            <p className="font-bold text-foreground text-sm">KES {summary.todayEarnings.toLocaleString()}</p>
           </div>
         </div>
       </header>
@@ -238,7 +274,7 @@ const DriverHome: React.FC = () => {
           {(step === 'offline' || step === 'online') && (
             <motion.div key="toggle" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }}>
               <button
-                onClick={() => step === 'offline' ? handleGoOnline() : setStep('offline')}
+                onClick={() => step === 'offline' ? handleGoOnline() : goOffline().then(() => setStep('offline'))}
                 className={`w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 transition-all active:scale-[0.98] ${
                   step === 'online' ? 'brand-gradient text-primary-foreground' : 'bg-secondary text-foreground'
                 }`}
@@ -268,17 +304,17 @@ const DriverHome: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
                   <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                  <span className="text-foreground">Westlands Mall, Nairobi</span>
+                  <span className="text-foreground">{ridePickup}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Navigation className="w-2.5 h-2.5 text-destructive" />
-                  <span className="text-foreground">JKIA Airport, Terminal 1</span>
+                  <span className="text-foreground">{rideDestination}</span>
                 </div>
               </div>
               <div className="flex items-center justify-between bg-secondary rounded-xl p-3">
                 <div><p className="text-xs text-muted-foreground">Fare</p><p className="font-bold text-foreground">KES {fare}</p></div>
-                <div><p className="text-xs text-muted-foreground">Distance</p><p className="font-bold text-foreground">7.2 km</p></div>
-                <div><p className="text-xs text-muted-foreground">Category</p><p className="font-bold text-foreground">Basic</p></div>
+                <div><p className="text-xs text-muted-foreground">Distance</p><p className="font-bold text-foreground">{rideDistance} km</p></div>
+                <div><p className="text-xs text-muted-foreground">Category</p><p className="font-bold text-foreground capitalize">{rideCategory}</p></div>
               </div>
               <div className="flex gap-3">
                 <button onClick={handleDecline} className="flex-1 py-3 rounded-xl border border-border text-muted-foreground font-semibold text-sm">Decline</button>
@@ -298,7 +334,7 @@ const DriverHome: React.FC = () => {
                   </div>
                   <div className="ml-auto flex items-center gap-1 text-sm text-muted-foreground"><Clock className="w-3.5 h-3.5" /><span>3 min away</span></div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="w-3.5 h-3.5 text-primary" /><span>Westlands Mall, Nairobi</span></div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="w-3.5 h-3.5 text-primary" /><span>{ridePickup}</span></div>
               </div>
               <button onClick={handleArrived} className="w-full py-4 rounded-2xl brand-gradient text-primary-foreground font-bold text-sm active:scale-[0.98]">I've Arrived</button>
             </motion.div>
@@ -308,7 +344,7 @@ const DriverHome: React.FC = () => {
             <motion.div key="otp" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} className="bg-card border border-border rounded-2xl p-5 text-center space-y-4">
               <h3 className="font-bold text-foreground">Enter Rider's PIN</h3>
               <p className="text-xs text-muted-foreground">Ask the rider for their 4-digit trip PIN</p>
-              <p className="text-[10px] text-muted-foreground">(Demo PIN: {correctOtp})</p>
+              <p className="text-[10px] text-muted-foreground">(Demo PIN: {activeRide?.otp_code ?? '----'})</p>
               <div className="flex justify-center gap-2">
                 {[0, 1, 2, 3].map((i) => (
                   <input key={i} type="text" maxLength={1} value={otpInput[i] || ''}
@@ -334,19 +370,19 @@ const DriverHome: React.FC = () => {
                   <div className="flex items-center gap-1 text-xs text-primary font-medium"><div className="w-2 h-2 rounded-full bg-primary animate-pulse" />Live</div>
                 </div>
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-primary" /><span className="text-muted-foreground">Westlands Mall</span></div>
-                  <div className="flex items-center gap-2"><Navigation className="w-2.5 h-2.5 text-destructive" /><span className="text-foreground font-medium">JKIA Airport, Terminal 1</span></div>
+                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-primary" /><span className="text-muted-foreground">{ridePickup}</span></div>
+                  <div className="flex items-center gap-2"><Navigation className="w-2.5 h-2.5 text-destructive" /><span className="text-foreground font-medium">{rideDestination}</span></div>
                 </div>
                 <div className="mt-3 flex items-center justify-between bg-secondary rounded-xl p-3">
                   <div><p className="text-xs text-muted-foreground">Fare</p><p className="font-bold text-foreground">KES {fare}</p></div>
-                  <div><p className="text-xs text-muted-foreground">Distance</p><p className="font-bold text-foreground">7.2 km</p></div>
+                  <div><p className="text-xs text-muted-foreground">Distance</p><p className="font-bold text-foreground">{rideDistance} km</p></div>
                   <div><p className="text-xs text-muted-foreground">Your Take (83.5%)</p><p className="font-bold text-primary">KES {Math.round(fare * 0.835)}</p></div>
                 </div>
               </div>
               <LiveProgressBar
-                pickup="Westlands Mall"
-                destination="JKIA Airport, Terminal 1"
-                totalDistanceKm={7.2}
+                pickup={ridePickup}
+                destination={rideDestination}
+                totalDistanceKm={rideDistance}
                 etaMinutes={18}
               />
               <div className="flex gap-3">
@@ -375,7 +411,7 @@ const DriverHome: React.FC = () => {
       </AnimatePresence>
 
       {step === 'rating' && (
-        <RatingModal role="driver" name="Alice Wanjiku" onSubmit={handleRatingSubmit} />
+        <RatingModal role="driver" name="Rider" rideId={activeRide?.id} ratedUserId={activeRide?.rider_id} onSubmit={handleRatingSubmit} />
       )}
       <RoleNav />
     </div>
