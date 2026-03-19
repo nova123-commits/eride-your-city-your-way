@@ -380,9 +380,9 @@ const DriverHome: React.FC = () => {
                 </div>
               </div>
               <LiveProgressBar
-                pickup="Westlands Mall"
-                destination="JKIA Airport, Terminal 1"
-                totalDistanceKm={7.2}
+                pickup={ridePickup}
+                destination={rideDestination}
+                totalDistanceKm={rideDistance}
                 etaMinutes={18}
               />
               <div className="flex gap-3">
