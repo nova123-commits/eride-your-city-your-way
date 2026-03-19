@@ -411,7 +411,7 @@ const DriverHome: React.FC = () => {
       </AnimatePresence>
 
       {step === 'rating' && (
-        <RatingModal role="driver" name="Alice Wanjiku" onSubmit={handleRatingSubmit} />
+        <RatingModal role="driver" name="Rider" rideId={activeRide?.id} ratedUserId={activeRide?.rider_id} onSubmit={handleRatingSubmit} />
       )}
       <RoleNav />
     </div>
