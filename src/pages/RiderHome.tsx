@@ -433,6 +433,10 @@ const RiderHome: React.FC = () => {
             onCancel={handleCancelRide}
             category={selectedCategory.name}
             fare={displayFare}
+            driverName={driverName}
+            vehicleName={driverVehicle}
+            vehicleColor={vehicle?.color}
+            plate={driverPlate}
           />
           <div className="px-4 pb-2 space-y-2">
             <LiveTripShare
