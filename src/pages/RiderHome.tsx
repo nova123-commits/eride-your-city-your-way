@@ -438,9 +438,9 @@ const RiderHome: React.FC = () => {
             <LiveTripShare
               pickup={pickup}
               destination={destination || 'JKIA Airport'}
-              driverName={MOCK_DRIVER.name}
-              vehicle={MOCK_DRIVER.vehicle}
-              plate={MOCK_DRIVER.plate}
+              driverName={driverName}
+              vehicle={driverVehicle}
+              plate={driverPlate}
             />
           </div>
         </div>
