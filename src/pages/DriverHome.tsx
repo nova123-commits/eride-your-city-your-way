@@ -274,7 +274,7 @@ const DriverHome: React.FC = () => {
           {(step === 'offline' || step === 'online') && (
             <motion.div key="toggle" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }}>
               <button
-                onClick={() => step === 'offline' ? handleGoOnline() : setStep('offline')}
+                onClick={() => step === 'offline' ? handleGoOnline() : goOffline().then(() => setStep('offline'))}
                 className={`w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 transition-all active:scale-[0.98] ${
                   step === 'online' ? 'brand-gradient text-primary-foreground' : 'bg-secondary text-foreground'
                 }`}
