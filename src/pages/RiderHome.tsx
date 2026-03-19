@@ -169,7 +169,7 @@ const RiderHome: React.FC = () => {
       dropoff: destination || 'JKIA Airport',
       distance: `${distanceKm} km`,
       duration: '18 min',
-      driverName: MOCK_DRIVER.name,
+      driverName: driverName,
       breakdown: fareBreakdown,
       currency,
     });
