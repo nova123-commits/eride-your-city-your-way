@@ -33,12 +33,12 @@ const DRIVER_CATEGORY: string = 'basic';
 const DriverHome: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { incomingRide, activeRide, isOnline, goOnline, goOffline, acceptRide, declineRide, updateRideStatus } = useDriverRides();
+  const { summary } = useDriverEarnings();
   const [step, setStep] = useState<DriverStep>('offline');
   const [countdown, setCountdown] = useState(15);
   const [otpInput, setOtpInput] = useState('');
-  const [correctOtp] = useState(generateOTP());
   const [otpError, setOtpError] = useState(false);
-  const [earnings] = useState(4250);
   const [showCredentials, setShowCredentials] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showSafetyOnboarding, setShowSafetyOnboarding] = useState(false);
@@ -55,41 +55,67 @@ const DriverHome: React.FC = () => {
     });
   }, [user]);
 
+  // React to incoming ride requests from realtime
   useEffect(() => {
-    if (step === 'online') {
-      const t = setTimeout(() => setStep('request'), 3000);
-      return () => clearTimeout(t);
+    if (incomingRide && step === 'online') {
+      setStep('request');
+      setCountdown(15);
     }
-  }, [step]);
+  }, [incomingRide]);
 
+  // Countdown for ride request
   useEffect(() => {
     if (step === 'request' && countdown > 0) {
       const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
       return () => clearTimeout(t);
     }
     if (step === 'request' && countdown === 0) {
+      declineRide();
       setStep('online');
       setCountdown(15);
     }
-  }, [step, countdown]);
+  }, [step, countdown, declineRide]);
 
   const handleGoOnline = () => setStep('selfie');
-  const handleSelfieVerified = () => {
+  const handleSelfieVerified = async () => {
     if (DRIVER_CATEGORY === 'boda') {
       setStep('bodaCheck');
     } else {
+      await goOnline();
       setStep('online');
     }
   };
-  const handleBodaCheckComplete = () => setStep('online');
+  const handleBodaCheckComplete = async () => {
+    await goOnline();
+    setStep('online');
+  };
   const handleBodaCheckCancel = () => setStep('offline');
   const handleSelfieCancelled = () => setStep('offline');
-  const handleAccept = () => setStep('navigating');
-  const handleDecline = () => { setStep('online'); setCountdown(15); };
-  const handleArrived = () => setStep('otp');
 
-  const handleOtpSubmit = () => {
+  const handleAccept = async () => {
+    if (!incomingRide) return;
+    const ok = await acceptRide(incomingRide.id);
+    if (ok) setStep('navigating');
+  };
+
+  const handleDecline = () => {
+    declineRide();
+    setStep('online');
+    setCountdown(15);
+  };
+
+  const handleArrived = async () => {
+    if (activeRide) {
+      await updateRideStatus(activeRide.id, 'driver_assigned', 'driver_arriving');
+    }
+    setStep('otp');
+  };
+
+  const handleOtpSubmit = async () => {
+    if (!activeRide) return;
+    const correctOtp = activeRide.otp_code ?? '';
     if (otpInput === correctOtp) {
+      await updateRideStatus(activeRide.id, 'driver_arriving', 'ride_started');
       setStep('trip');
       setOtpError(false);
     } else {
@@ -97,7 +123,12 @@ const DriverHome: React.FC = () => {
     }
   };
 
-  const handleFinishTrip = () => setStep('rating');
+  const handleFinishTrip = async () => {
+    if (activeRide) {
+      await updateRideStatus(activeRide.id, 'ride_started', 'ride_completed');
+    }
+    setStep('rating');
+  };
 
   const handleRatingSubmit = () => {
     setStep('online');
@@ -105,9 +136,12 @@ const DriverHome: React.FC = () => {
     setCountdown(15);
   };
 
-  const mockCategory = RIDE_CATEGORIES[0];
-  const lockedFare = getLockedFare();
-  const fare = lockedFare ?? calculateFare(mockCategory, 7.2);
+  const currentRide = activeRide ?? incomingRide;
+  const fare = currentRide?.estimated_fare ?? getLockedFare() ?? calculateFare(RIDE_CATEGORIES[0], 7.2);
+  const ridePickup = currentRide?.pickup_address ?? 'Westlands Mall, Nairobi';
+  const rideDestination = currentRide?.destination_address ?? 'JKIA Airport, Terminal 1';
+  const rideDistance = currentRide?.distance_km ?? 7.2;
+  const rideCategory = currentRide?.category ?? 'basic';
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
