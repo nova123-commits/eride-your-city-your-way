@@ -308,7 +308,7 @@ const DriverHome: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Navigation className="w-2.5 h-2.5 text-destructive" />
-                  <span className="text-foreground">JKIA Airport, Terminal 1</span>
+                  <span className="text-foreground">{rideDestination}</span>
                 </div>
               </div>
               <div className="flex items-center justify-between bg-secondary rounded-xl p-3">
