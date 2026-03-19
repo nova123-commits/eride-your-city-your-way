@@ -188,7 +188,7 @@ const DriverHome: React.FC = () => {
           </button>
           <div className="text-right">
             <p className="text-xs text-muted-foreground">Today</p>
-            <p className="font-bold text-foreground text-sm">KES {earnings.toLocaleString()}</p>
+            <p className="font-bold text-foreground text-sm">KES {summary.todayEarnings.toLocaleString()}</p>
           </div>
         </div>
       </header>
