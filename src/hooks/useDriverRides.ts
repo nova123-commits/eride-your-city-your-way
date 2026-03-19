@@ -12,6 +12,7 @@ export interface IncomingRide {
   distance_km: number | null;
   otp_code: string | null;
   rider_id: string;
+  driver_id: string | null;
   status: string;
   surge_multiplier: number;
 }
