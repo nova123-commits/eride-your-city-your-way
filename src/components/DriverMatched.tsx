@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Star, MessageCircle, CheckCircle2 } from 'lucide-react';
-import { MOCK_DRIVER } from '@/lib/ride';
 import { toast } from 'sonner';
 import SOSButton from '@/components/safety/SOSButton';
 import PrivacyCall from '@/components/safety/PrivacyCall';
@@ -12,31 +11,41 @@ interface DriverMatchedProps {
   onCancel: () => void;
   category: string;
   fare: number;
+  driverName?: string;
+  driverRating?: number;
+  driverTrips?: number;
+  vehicleName?: string;
+  vehicleColor?: string;
+  plate?: string;
 }
 
-const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, fare }) => {
+const DriverMatched: React.FC<DriverMatchedProps> = ({
+  otp, onCancel, category, fare,
+  driverName = 'Your Driver',
+  driverRating = 4.8,
+  driverTrips = 0,
+  vehicleName = 'Vehicle',
+  vehicleColor = 'White',
+  plate = '',
+}) => {
   useEffect(() => {
     toast.success('Driver matched! 🎉', {
-      description: `${MOCK_DRIVER.name} is on the way`,
+      description: `${driverName} is on the way`,
       icon: <CheckCircle2 className="w-5 h-5 text-primary" />,
     });
-  }, []);
+  }, [driverName]);
 
   return (
     <>
-      {/* Floating SOS on the map */}
       <SOSButton floating />
-
       <motion.div
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
         className="fixed bottom-0 left-0 right-0 z-50 glass-bottom-sheet rounded-t-3xl p-5 safe-bottom"
       >
-        {/* Handle */}
         <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-4" />
 
-        {/* Success badge */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -47,7 +56,6 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
           <span className="text-xs font-semibold text-primary">Ride Matched</span>
         </motion.div>
 
-        {/* OTP */}
         <div className="text-center mb-4">
           <p className="text-xs text-muted-foreground mb-1">Share this PIN with your driver</p>
           <div className="flex justify-center gap-2">
@@ -65,7 +73,6 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
           </div>
         </div>
 
-        {/* Driver info */}
         <div className="flex items-center gap-4 mb-4">
           <motion.div
             initial={{ scale: 0 }}
@@ -73,18 +80,17 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
             transition={{ type: 'spring', delay: 0.15 }}
             className="w-14 h-14 rounded-full brand-gradient flex items-center justify-center text-2xl font-bold text-primary-foreground"
           >
-            {MOCK_DRIVER.name[0]}
+            {driverName[0]}
           </motion.div>
           <div className="flex-1">
             <div className="flex items-center gap-1.5">
-              <h3 className="font-semibold text-foreground">{MOCK_DRIVER.name}</h3>
+              <h3 className="font-semibold text-foreground">{driverName}</h3>
               <VerifiedBadge isVerified={true} />
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
-              <span>{MOCK_DRIVER.rating}</span>
-              <span>·</span>
-              <span>{MOCK_DRIVER.trips} trips</span>
+              <span>{driverRating}</span>
+              {driverTrips > 0 && <><span>·</span><span>{driverTrips} trips</span></>}
             </div>
           </div>
           <div className="text-right">
@@ -93,27 +99,26 @@ const DriverMatched: React.FC<DriverMatchedProps> = ({ otp, onCancel, category, 
           </div>
         </div>
 
-        {/* Vehicle info */}
         <div className="rounded-xl glass-panel p-3 mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-foreground">{MOCK_DRIVER.vehicle}</p>
-              <p className="text-xs text-muted-foreground">White · Sedan</p>
+              <p className="text-sm font-medium text-foreground">{vehicleName}</p>
+              <p className="text-xs text-muted-foreground">{vehicleColor} · Sedan</p>
             </div>
-            <div className="px-3 py-1.5 rounded-lg glass-fab">
-              <p className="font-bold text-sm text-foreground tracking-wider">{MOCK_DRIVER.plate}</p>
-            </div>
+            {plate && (
+              <div className="px-3 py-1.5 rounded-lg glass-fab">
+                <p className="font-bold text-sm text-foreground tracking-wider">{plate}</p>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Privacy note */}
-        <div className="flex items-center gap-2 px-3 py-2 mb-3 rounded-lg bg-[hsl(210,60%,97%)] dark:bg-[hsl(210,40%,12%)] border border-[hsl(210,60%,90%)] dark:border-[hsl(210,40%,25%)]">
-          <span className="text-[10px] text-[hsl(210,80%,50%)]">🔒 Your phone number is hidden for your privacy.</span>
+        <div className="flex items-center gap-2 px-3 py-2 mb-3 rounded-lg bg-accent border border-border">
+          <span className="text-[10px] text-muted-foreground">🔒 Your phone number is hidden for your privacy.</span>
         </div>
 
-        {/* Actions */}
         <div className="flex gap-3 mb-3">
-          <PrivacyCall recipientName={MOCK_DRIVER.name} />
+          <PrivacyCall recipientName={driverName} />
           <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl glass-fab text-foreground font-medium text-sm btn-press">
             <MessageCircle className="w-4 h-4" />
             Message

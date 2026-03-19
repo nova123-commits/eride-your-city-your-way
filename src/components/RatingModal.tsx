@@ -1,17 +1,49 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Star, Heart } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 interface RatingModalProps {
   role: 'rider' | 'driver';
   name: string;
+  rideId?: string | null;
+  ratedUserId?: string | null;
   onSubmit: (rating: number, isFavorite?: boolean) => void;
 }
 
-const RatingModal: React.FC<RatingModalProps> = ({ role, name, onSubmit }) => {
+const RatingModal: React.FC<RatingModalProps> = ({ role, name, rideId, ratedUserId, onSubmit }) => {
   const [rating, setRating] = React.useState(0);
   const [hoveredRating, setHoveredRating] = React.useState(0);
   const [isFavorite, setIsFavorite] = React.useState(false);
+  const [submitting, setSubmitting] = React.useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handleSubmit = async () => {
+    if (rating === 0) return;
+    setSubmitting(true);
+
+    // Save rating to database if we have the necessary info
+    if (user && rideId && ratedUserId) {
+      const { error } = await supabase.from('ratings').insert({
+        ride_id: rideId,
+        rater_id: user.id,
+        rated_id: ratedUserId,
+        rater_role: role,
+        rating,
+        comment: isFavorite ? 'Favorite driver' : null,
+      });
+      if (error) {
+        console.error('[RatingModal] save error:', error);
+        toast({ title: 'Rating failed to save', description: error.message, variant: 'destructive' });
+      }
+    }
+
+    onSubmit(rating, isFavorite);
+    setSubmitting(false);
+  };
 
   return (
     <motion.div
@@ -51,16 +83,13 @@ const RatingModal: React.FC<RatingModalProps> = ({ role, name, onSubmit }) => {
             >
               <Star
                 className={`w-10 h-10 transition-colors ${
-                  star <= (hoveredRating || rating)
-                    ? 'text-yellow-500 fill-yellow-500'
-                    : 'text-muted'
+                  star <= (hoveredRating || rating) ? 'text-yellow-500 fill-yellow-500' : 'text-muted'
                 }`}
               />
             </motion.button>
           ))}
         </div>
 
-        {/* Favorite Driver */}
         {role === 'rider' && rating > 0 && (
           <motion.button
             initial={{ opacity: 0, y: 5 }}
@@ -83,11 +112,11 @@ const RatingModal: React.FC<RatingModalProps> = ({ role, name, onSubmit }) => {
         )}
 
         <button
-          onClick={() => rating > 0 && onSubmit(rating, isFavorite)}
-          disabled={rating === 0}
+          onClick={handleSubmit}
+          disabled={rating === 0 || submitting}
           className="w-full py-3.5 rounded-xl brand-gradient text-primary-foreground font-semibold text-sm disabled:opacity-40 btn-press-deep"
         >
-          Submit Rating
+          {submitting ? 'Saving...' : 'Submit Rating'}
         </button>
       </motion.div>
     </motion.div>
