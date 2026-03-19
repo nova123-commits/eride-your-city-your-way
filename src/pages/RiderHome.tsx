@@ -52,6 +52,8 @@ const RiderHome: React.FC = () => {
   const { toast } = useToast();
   const { quality, isLowData } = useNetworkQuality();
   const { lockFare, getLockedFare, releaseLock } = useFareLock();
+  const { rideId, createRide, cancelRide: cancelRideRequest } = useRideRequest();
+  const { ride, driver, vehicle } = useRideRealtime(rideId);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [step, setStep] = useState<RiderStep>('home');
   const [fareLocked, setFareLocked] = useState(false);
@@ -72,31 +74,77 @@ const RiderHome: React.FC = () => {
   const [guestBooking, setGuestBooking] = useState<GuestBooking>({ enabled: false, passengerName: '', passengerPhone: '' });
   const distanceKm = 7.2;
 
+  // Derived driver info from realtime
+  const driverName = driver?.full_name ?? 'Your Driver';
+  const driverVehicle = vehicle ? `${vehicle.make} ${vehicle.model}` : 'Vehicle';
+  const driverPlate = vehicle?.plate_number ?? '';
+
+  // React to realtime ride status changes
+  useEffect(() => {
+    if (!ride) return;
+    if (ride.status === 'driver_assigned' && step === 'searching') {
+      setOtp(ride.otp_code ?? '');
+      setStep('matched');
+    } else if (ride.status === 'ride_started' && step !== 'inTrip') {
+      setStep('inTrip');
+    } else if (ride.status === 'ride_completed' && step !== 'tripSummary' && step !== 'payment' && step !== 'receipt' && step !== 'rating') {
+      setStep('tripSummary');
+    } else if (ride.status === 'cancelled' && step !== 'home') {
+      setStep('home');
+      toast({ title: 'Ride cancelled' });
+    }
+  }, [ride?.status]);
+
   const handleSearch = () => setStep('categories');
   const handleCategoryConfirm = () => setStep('preferences');
 
   const handleRequestRide = async () => {
-    setOtp(generateOTP());
-    // Lock the fare when rider confirms
-    if (selectedCategory && user) {
-      await lockFare({
-        categoryId: selectedCategory.id,
-        pickup,
-        destination: destination || 'JKIA Airport',
-        fareAmount: fare,
-        currency,
-        distanceKm,
-      });
-      setFareLocked(true);
-    }
+    if (!selectedCategory || !user) return;
+    // Lock the fare
+    await lockFare({
+      categoryId: selectedCategory.id,
+      pickup,
+      destination: destination || 'JKIA Airport',
+      fareAmount: fare,
+      currency,
+      distanceKm,
+    });
+    setFareLocked(true);
     setStep('searching');
+
+    // Create the ride in the database
+    const id = await createRide({
+      pickup,
+      destination: destination || 'JKIA Airport',
+      category: selectedCategory,
+      estimatedFare: fare,
+      distanceKm,
+      surgeMultiplier: isPeakHour() ? 1.5 : 1,
+    });
+
+    if (!id) {
+      setStep('home');
+      setFareLocked(false);
+    }
+
+    // Also try to assign a driver via edge function
+    if (id) {
+      try {
+        await supabase.functions.invoke('assign-driver', { body: { ride_id: id } });
+      } catch (err) {
+        console.warn("[RiderHome] assign-driver call failed, waiting for manual accept", err);
+      }
+    }
   };
 
   const handleDriverFound = useCallback(() => {
-    setStep('matched');
-  }, []);
+    // This is the fallback timeout from SearchingDriver
+    // With realtime, this may already be handled by useEffect above
+    if (step === 'searching') setStep('matched');
+  }, [step]);
 
   const handleCancelRide = async () => {
+    await cancelRideRequest();
     await releaseLock();
     setFareLocked(false);
     setStep('home');
