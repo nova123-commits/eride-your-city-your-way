@@ -344,7 +344,7 @@ const DriverHome: React.FC = () => {
             <motion.div key="otp" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} className="bg-card border border-border rounded-2xl p-5 text-center space-y-4">
               <h3 className="font-bold text-foreground">Enter Rider's PIN</h3>
               <p className="text-xs text-muted-foreground">Ask the rider for their 4-digit trip PIN</p>
-              <p className="text-[10px] text-muted-foreground">(Demo PIN: {correctOtp})</p>
+              <p className="text-[10px] text-muted-foreground">(Demo PIN: {activeRide?.otp_code ?? '----'})</p>
               <div className="flex justify-center gap-2">
                 {[0, 1, 2, 3].map((i) => (
                   <input key={i} type="text" maxLength={1} value={otpInput[i] || ''}
