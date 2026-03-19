@@ -399,7 +399,7 @@ const RiderHome: React.FC = () => {
                 pickup={pickup}
                 dropoff={destination || 'JKIA Airport'}
                 distance={`${distanceKm} km`}
-                driverName={MOCK_DRIVER.name}
+                driverName={driverName}
               />
               <div className="flex gap-3">
                 <button
