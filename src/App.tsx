@@ -33,6 +33,15 @@ import DriverManual from "./pages/DriverManual";
 import PlatformSetup from "./pages/PlatformSetup";
 import NotFound from "./pages/NotFound";
 
+/** Redirects /dashboard to the correct role-based home */
+function DashboardRedirect() {
+  const { role } = useAuth();
+  if (role === "driver") return <Navigate to="/driver" replace />;
+  if (role === "manager" || role === "super_admin") return <Navigate to="/manager" replace />;
+  if (role && ["admin", "operations_manager", "support_agent", "finance"].includes(role)) return <Navigate to="/admin/overview" replace />;
+  return <Navigate to="/rider" replace />;
+}
+
 const queryClient = new QueryClient();
 
 /** Gate that redirects super admins to /admin/platform-setup if platform isn't initialized */
@@ -106,6 +115,7 @@ const App = () => {
               <Route path="/manager" element={<ProtectedRoute allowedRoles={["manager", "super_admin"]}><ManagerDashboard /></ProtectedRoute>} />
               <Route path="/manager/setup" element={<ProtectedRoute allowedRoles={["manager", "super_admin"]}><ManagerSetup /></ProtectedRoute>} />
               <Route path="/driver/manual" element={<ProtectedRoute allowedRoles={["driver"]}><DriverManual /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><DashboardRedirect /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </PlatformInitGate>
