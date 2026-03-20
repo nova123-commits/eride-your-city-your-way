@@ -101,8 +101,11 @@ const STEPS = [
 
 export default function DriverOnboarding() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // Step 1 state
   const [documents, setDocuments] = useState<DocumentUpload[]>([
