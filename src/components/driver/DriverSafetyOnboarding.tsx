@@ -172,8 +172,8 @@ const DriverSafetyOnboarding: React.FC<DriverSafetyOnboardingProps> = ({ onCompl
         </div>
       </div>
 
-      {/* Navigation — always visible at bottom */}
-      <div className="shrink-0 px-6 pb-6 pt-4 border-t border-border bg-background space-y-4">
+      {/* Navigation — always visible at bottom, safe area for mobile */}
+      <div className="shrink-0 px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 border-t border-border bg-background space-y-4">
         {isLastSlide && (
           <label className="flex items-start gap-3 p-4 rounded-xl bg-accent/50 border border-border cursor-pointer">
             <Checkbox checked={agreed} onCheckedChange={(v) => setAgreed(!!v)} className="mt-0.5" />
@@ -185,21 +185,21 @@ const DriverSafetyOnboarding: React.FC<DriverSafetyOnboardingProps> = ({ onCompl
 
         <div className="flex gap-3">
           {currentSlide > 0 ? (
-            <Button variant="outline" onClick={goPrev} className="flex-1">
+            <Button variant="outline" onClick={goPrev} className="flex-1 min-h-[48px]">
               <ChevronLeft className="w-4 h-4 mr-1" /> Back
             </Button>
           ) : (
-            <Button variant="ghost" onClick={onComplete} className="flex-1 text-muted-foreground">
+            <Button variant="ghost" onClick={onComplete} className="flex-1 min-h-[48px] text-muted-foreground">
               Skip for now
             </Button>
           )}
 
           {!isLastSlide ? (
-            <Button onClick={goNext} className="flex-1">
+            <Button onClick={goNext} className="flex-1 min-h-[48px]">
               Next <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
-            <Button onClick={handleAccept} disabled={!agreed || submitting} className="flex-1">
+            <Button onClick={handleAccept} disabled={!agreed || submitting} className="flex-1 min-h-[48px]">
               {submitting ? 'Saving...' : 'Accept & Continue'}
             </Button>
           )}
