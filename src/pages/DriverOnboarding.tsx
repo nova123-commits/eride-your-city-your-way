@@ -2,6 +2,8 @@ import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ERideLogo from "@/components/ERideLogo";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,8 +101,11 @@ const STEPS = [
 
 export default function DriverOnboarding() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // Step 1 state
   const [documents, setDocuments] = useState<DocumentUpload[]>([
@@ -157,18 +162,38 @@ export default function DriverOnboarding() {
     }
   };
 
-  const handleSubmitApplication = () => {
-    const existing = JSON.parse(localStorage.getItem("eride_driver_applications") || "[]");
-    existing.push({
-      id: crypto.randomUUID(),
-      submittedAt: new Date().toISOString(),
-      status: "pending",
-      documents: documents.map((d) => ({ name: d.label, expiry: d.expiryDate })),
-      vehicleChecks: vehicleChecks.map((c) => ({ label: c.label, passed: c.checked })),
-      quizScore: "100%",
-    });
-    localStorage.setItem("eride_driver_applications", JSON.stringify(existing));
-    toast({ title: "Application Submitted!", description: "You'll be notified once an admin reviews your profile." });
+  const handleSubmitApplication = async () => {
+    if (!user || submitting || submitted) return;
+    setSubmitting(true);
+    try {
+      // Upload document records to driver_documents
+      for (const doc of documents) {
+        await supabase.from("driver_documents").insert({
+          driver_id: user.id,
+          document_type: doc.name,
+          file_url: `pending://${doc.name}`,
+          expiry_date: doc.expiryDate || null,
+          status: "pending",
+        });
+      }
+
+      // Mark safety terms as accepted (signals onboarding complete)
+      await supabase
+        .from("profiles")
+        .update({ safety_terms_accepted_at: new Date().toISOString() })
+        .eq("id", user.id);
+
+      setSubmitted(true);
+      toast({ title: "Application Submitted!", description: "You'll be notified once an admin reviews your profile." });
+
+      // Redirect to driver dashboard after short delay
+      setTimeout(() => navigate("/driver"), 1500);
+    } catch (err) {
+      console.error("Submit error:", err);
+      toast({ title: "Submission Failed", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const nextStep = () => {
@@ -429,8 +454,8 @@ export default function DriverOnboarding() {
                     </div>
                   ))}
                 </div>
-                <Button onClick={handleSubmitApplication} size="lg" className="w-full max-w-sm">
-                  Submit Application
+                <Button onClick={handleSubmitApplication} size="lg" className="w-full max-w-sm" disabled={submitting || submitted}>
+                  {submitting ? "Submitting…" : submitted ? "Submitted ✓" : "Submit Application"}
                 </Button>
               </div>
             )}
