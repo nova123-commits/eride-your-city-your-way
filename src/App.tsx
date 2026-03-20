@@ -106,6 +106,7 @@ const App = () => {
               <Route path="/manager" element={<ProtectedRoute allowedRoles={["manager", "super_admin"]}><ManagerDashboard /></ProtectedRoute>} />
               <Route path="/manager/setup" element={<ProtectedRoute allowedRoles={["manager", "super_admin"]}><ManagerSetup /></ProtectedRoute>} />
               <Route path="/driver/manual" element={<ProtectedRoute allowedRoles={["driver"]}><DriverManual /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><DashboardRedirect /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </PlatformInitGate>
