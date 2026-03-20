@@ -454,8 +454,8 @@ export default function DriverOnboarding() {
                     </div>
                   ))}
                 </div>
-                <Button onClick={handleSubmitApplication} size="lg" className="w-full max-w-sm">
-                  Submit Application
+                <Button onClick={handleSubmitApplication} size="lg" className="w-full max-w-sm" disabled={submitting || submitted}>
+                  {submitting ? "Submitting…" : submitted ? "Submitted ✓" : "Submit Application"}
                 </Button>
               </div>
             )}
