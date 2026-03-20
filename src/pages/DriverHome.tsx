@@ -413,7 +413,7 @@ const DriverHome: React.FC = () => {
       {step === 'rating' && (
         <RatingModal role="driver" name="Rider" rideId={activeRide?.id} ratedUserId={activeRide?.rider_id} onSubmit={handleRatingSubmit} />
       )}
-      <RoleNav />
+      {!showSafetyOnboarding && <RoleNav />}
     </div>
   );
 };
