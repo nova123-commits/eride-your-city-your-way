@@ -44,20 +44,44 @@ function DashboardRedirect() {
 
 const queryClient = new QueryClient();
 
+function FullScreenLoader({ message }: { message: string }) {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center space-y-3 px-6">
+        <div className="w-9 h-9 rounded-full border-2 border-primary border-t-transparent animate-spin mx-auto" />
+        <p className="text-xs text-muted-foreground">{message}</p>
+      </div>
+    </div>
+  );
+}
+
 /** Gate that redirects super admins to /admin/platform-setup if platform isn't initialized */
 function PlatformInitGate({ children }: { children: React.ReactNode }) {
   const { user, role, loading, roleLoading } = useAuth();
-  const { initialized, loading: initLoading } = usePlatformInit();
   const location = useLocation();
 
   // Don't gate these paths
   const bypassPaths = ["/admin/platform-setup", "/auth", "/", "/drive-with-us", "/legal", "/terms", "/help"];
-  if (bypassPaths.some(p => location.pathname === p) || location.pathname.startsWith("/trip/")) {
+  const bypassGate = bypassPaths.some(p => location.pathname === p) || location.pathname.startsWith("/trip/");
+  const needsPlatformCheck = !bypassGate && !!user && ["manager", "admin"].includes(role ?? "");
+  const { initialized, loading: initLoading } = usePlatformInit(needsPlatformCheck);
+
+  if (bypassGate) {
     return <>{children}</>;
   }
 
-  // Wait for everything to load
-  if (loading || roleLoading || initLoading) return null;
+  // Wait for auth to resolve, but never render a blank screen
+  if (loading || roleLoading) {
+    return <FullScreenLoader message="Restoring your session..." />;
+  }
+
+  if (!needsPlatformCheck) {
+    return <>{children}</>;
+  }
+
+  if (initLoading) {
+    return <FullScreenLoader message="Loading platform settings..." />;
+  }
 
   // If platform not initialized and user is a manager/admin, redirect to setup
   if (initialized === false && user && (role === "manager" || role === "admin")) {
