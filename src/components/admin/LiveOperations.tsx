@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Car, Navigation, Users } from "lucide-react";
 import { motion } from "framer-motion";
+import LiveMap from "@/components/map/LiveMap";
 
 interface MockDriver {
   id: string;
