@@ -56,7 +56,16 @@ const LiveMap: React.FC<LiveMapProps> = ({
     mapRef.current = map;
     initializedRef.current = true;
 
+    // Fix blank map when returning to tab
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && mapRef.current) {
+        setTimeout(() => mapRef.current?.invalidateSize(), 200);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
       map.remove();
       mapRef.current = null;
       markerRef.current = null;

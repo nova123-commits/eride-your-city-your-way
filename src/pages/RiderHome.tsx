@@ -477,7 +477,9 @@ const RiderHome: React.FC = () => {
           onSubmit={handleRatingSubmit}
         />
       )}
-      <RoleNav />
+      {(step === 'home' || step === 'categories' || step === 'preferences' || step === 'schedule' || step === 'inTrip') && (
+        <RoleNav />
+      )}
     </div>
   );
 };

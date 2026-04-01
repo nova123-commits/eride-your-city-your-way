@@ -45,7 +45,7 @@ const TripSummaryOverlay: React.FC<TripSummaryOverlayProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end justify-center"
+      className="fixed inset-0 z-[60] flex items-end justify-center overflow-y-auto"
       style={{ background: 'hsl(var(--background) / 0.7)', backdropFilter: 'blur(16px)' }}
     >
       <motion.div
