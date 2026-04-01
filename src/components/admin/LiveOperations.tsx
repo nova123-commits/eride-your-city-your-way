@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Car, Navigation, Users } from "lucide-react";
 import { motion } from "framer-motion";
+import LiveMap from "@/components/map/LiveMap";
 
 interface MockDriver {
   id: string;
@@ -76,17 +77,13 @@ export default function LiveOperations() {
 
       {/* Live Map */}
       <Card className="border-border/60 overflow-hidden">
-        <CardContent className="p-0 relative h-72 bg-secondary">
-          {/* Grid */}
-          <div className="absolute inset-0 opacity-[0.04]" style={{
-            backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
-            backgroundSize: '30px 30px',
-          }} />
+        <CardContent className="p-0 relative h-72">
+          <LiveMap className="h-full w-full" followUser={false} />
 
           {drivers.map((driver) => (
             <motion.div
               key={driver.id}
-              className="absolute cursor-pointer"
+              className="absolute cursor-pointer z-[400]"
               style={{ top: driver.position.top, left: driver.position.left }}
               animate={{ top: driver.position.top, left: driver.position.left }}
               transition={{ duration: 2, ease: "easeInOut" }}
@@ -104,11 +101,6 @@ export default function LiveOperations() {
               )}
             </motion.div>
           ))}
-
-          <div className="absolute bottom-2 left-3 flex items-center gap-3 text-[10px] text-muted-foreground">
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-primary/80" /> Online</span>
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" /> On Trip</span>
-          </div>
         </CardContent>
       </Card>
 
