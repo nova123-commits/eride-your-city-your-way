@@ -30,6 +30,7 @@ import RiderWaitlist from '@/components/RiderWaitlist';
 import LiveProgressBar from '@/components/trip/LiveProgressBar';
 import TripSummaryOverlay from '@/components/trip/TripSummaryOverlay';
 import PulseMapMarker from '@/components/trip/PulseMapMarker';
+import LiveMap from '@/components/map/LiveMap';
 import { downloadReceiptAsImage } from '@/lib/receiptGenerator';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
