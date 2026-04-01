@@ -19,6 +19,7 @@ import DriverDemandHeatmap from '@/components/driver/DriverDemandHeatmap';
 import HomeDestinationFilter from '@/components/driver/HomeDestinationFilter';
 import LiveProgressBar from '@/components/trip/LiveProgressBar';
 import PulseMapMarker from '@/components/trip/PulseMapMarker';
+import LiveMap from '@/components/map/LiveMap';
 import CancellationModal from '@/components/driver/CancellationModal';
 import BodaSafetyCheck from '@/components/driver/BodaSafetyCheck';
 import { useFareLock } from '@/hooks/useFareLock';
