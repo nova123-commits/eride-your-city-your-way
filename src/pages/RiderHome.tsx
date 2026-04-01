@@ -244,24 +244,12 @@ const RiderHome: React.FC = () => {
       <LowDataBanner quality={quality} />
 
       <div className="flex-1 relative bg-secondary overflow-hidden">
-        {!isLowData && (
-          <>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="w-12 h-12 text-primary mx-auto mb-2 animate-bounce" />
-                <p className="text-xs text-muted-foreground">Map view</p>
-              </div>
-            </div>
-            <div className="absolute inset-0 opacity-[0.03]" style={{
-              backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
-              backgroundSize: '40px 40px',
-            }} />
-          </>
-        )}
-        {isLowData && (
+        {isLowData ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <p className="text-xs text-muted-foreground">Maps paused — low data mode</p>
           </div>
+        ) : (
+          <LiveMap className="h-full w-full" enabled={!isLowData} />
         )}
 
         {step === 'matched' && (

@@ -215,18 +215,7 @@ const DriverHome: React.FC = () => {
 
       {/* Map area */}
       <div className="flex-1 relative bg-secondary overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <Navigation className="w-12 h-12 text-primary mx-auto mb-2" />
-            <p className="text-xs text-muted-foreground">
-              {step === 'offline' ? 'Go online to start' : 'Navigating...'}
-            </p>
-          </div>
-        </div>
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }} />
+        <LiveMap className="h-full w-full" />
 
         {/* Demand heatmap overlay — visible when online */}
         {(step === 'online' || step === 'request') && <DriverDemandHeatmap />}
