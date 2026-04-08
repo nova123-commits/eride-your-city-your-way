@@ -1,36 +1,98 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Send, MapPin, User, Car } from "lucide-react";
+import { Send, MapPin, User, Car, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
-const MOCK_DRIVERS = [
-  { id: "d1", name: "James Mwangi", vehicle: "Toyota Vitz · KCB 123A", rating: 4.9, distance: "0.8 km" },
-  { id: "d2", name: "Grace Wanjiku", vehicle: "Suzuki Alto · KDA 456B", rating: 4.7, distance: "1.2 km" },
-  { id: "d3", name: "Peter Ochieng", vehicle: "Honda Fit · KCE 789C", rating: 4.8, distance: "1.5 km" },
-];
+interface OnlineDriver {
+  driver_id: string;
+  full_name: string | null;
+  vehicle_info: string;
+  plate: string;
+}
 
 export default function ManualDispatch() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
   const [selectedDriver, setSelectedDriver] = useState<string | null>(null);
   const [dispatching, setDispatching] = useState(false);
+  const [drivers, setDrivers] = useState<OnlineDriver[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleDispatch = () => {
-    if (!pickup || !destination || !selectedDriver) {
+  useEffect(() => {
+    const fetchOnlineDrivers = async () => {
+      // Get online driver locations
+      const { data: locations } = await supabase
+        .from("driver_locations")
+        .select("driver_id")
+        .eq("is_online", true);
+
+      if (!locations || locations.length === 0) {
+        setDrivers([]);
+        setLoading(false);
+        return;
+      }
+
+      const driverIds = locations.map(l => l.driver_id);
+
+      const [profilesRes, vehiclesRes] = await Promise.all([
+        supabase.from("profiles").select("id, full_name").in("id", driverIds),
+        supabase.from("vehicles").select("driver_id, make, model, plate_number").in("driver_id", driverIds).eq("is_active", true),
+      ]);
+
+      const profileMap = new Map((profilesRes.data || []).map(p => [p.id, p.full_name]));
+      const vehicleMap = new Map((vehiclesRes.data || []).map(v => [v.driver_id, v]));
+
+      const enriched: OnlineDriver[] = driverIds.map(id => {
+        const v = vehicleMap.get(id);
+        return {
+          driver_id: id,
+          full_name: profileMap.get(id) || null,
+          vehicle_info: v ? `${v.make} ${v.model}` : "No vehicle",
+          plate: v?.plate_number || "—",
+        };
+      });
+
+      setDrivers(enriched);
+      setLoading(false);
+    };
+
+    fetchOnlineDrivers();
+  }, []);
+
+  const handleDispatch = async () => {
+    if (!pickup || !destination || !selectedDriver || !user) {
       toast({ title: "Fill all fields", description: "Select pickup, destination, and a driver.", variant: "destructive" });
       return;
     }
     setDispatching(true);
-    setTimeout(() => {
-      setDispatching(false);
-      toast({ title: "Trip Dispatched ✓", description: `Assigned to ${MOCK_DRIVERS.find(d => d.id === selectedDriver)?.name}` });
+
+    // Create a ride and assign the driver directly
+    const { data, error } = await supabase.from("rides").insert({
+      rider_id: user.id, // admin-created ride
+      pickup_address: pickup,
+      destination_address: destination,
+      driver_id: selectedDriver,
+      status: "driver_assigned",
+      category: "basic",
+      estimated_fare: 0,
+    }).select("id").single();
+
+    if (error) {
+      toast({ title: "Dispatch failed", description: error.message, variant: "destructive" });
+    } else {
+      const driverName = drivers.find(d => d.driver_id === selectedDriver)?.full_name || "Driver";
+      toast({ title: "Trip Dispatched ✓", description: `Assigned to ${driverName}` });
       setPickup("");
       setDestination("");
       setSelectedDriver(null);
-    }, 1200);
+    }
+    setDispatching(false);
   };
 
   return (
@@ -54,34 +116,36 @@ export default function ManualDispatch() {
 
       <div className="space-y-2">
         <p className="text-sm font-medium text-foreground">Select Driver</p>
-        {MOCK_DRIVERS.map(driver => (
-          <Card
-            key={driver.id}
-            className={`border-border/60 cursor-pointer transition-all ${selectedDriver === driver.id ? "ring-2 ring-primary border-primary" : "hover:border-primary/40"}`}
-            onClick={() => setSelectedDriver(driver.id)}
-          >
-            <CardContent className="p-3 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
-                  <User className="w-4 h-4 text-muted-foreground" />
+        {loading ? (
+          <div className="text-center py-4"><Loader2 className="w-5 h-5 animate-spin mx-auto text-muted-foreground" /></div>
+        ) : drivers.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-4">No drivers online.</p>
+        ) : (
+          drivers.map(driver => (
+            <Card
+              key={driver.driver_id}
+              className={`border-border/60 cursor-pointer transition-all ${selectedDriver === driver.driver_id ? "ring-2 ring-primary border-primary" : "hover:border-primary/40"}`}
+              onClick={() => setSelectedDriver(driver.driver_id)}
+            >
+              <CardContent className="p-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
+                    <User className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{driver.full_name || "Unnamed"}</p>
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <Car className="w-3 h-3" /> {driver.vehicle_info} · {driver.plate}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">{driver.name}</p>
-                  <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                    <Car className="w-3 h-3" /> {driver.vehicle}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-semibold text-foreground">⭐ {driver.rating}</p>
-                <p className="text-[10px] text-muted-foreground">{driver.distance}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
-      <Button className="w-full gap-2" onClick={handleDispatch} disabled={dispatching}>
+      <Button className="w-full gap-2" onClick={handleDispatch} disabled={dispatching || !selectedDriver}>
         <Send className="w-4 h-4" />
         {dispatching ? "Dispatching..." : "Dispatch Trip"}
       </Button>

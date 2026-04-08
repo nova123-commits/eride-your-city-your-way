@@ -65,15 +65,7 @@ export function isPeakHour(): boolean {
   return (hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19);
 }
 
-export const MOCK_DRIVER = {
-  name: 'James Mwangi',
-  rating: 4.8,
-  trips: 1243,
-  plate: 'KDA 421X',
-  vehicle: 'Toyota Vitz',
-  photo: '',
-  phone: '+254 712 345 678',
-};
+// MOCK_DRIVER removed — all driver data now comes from the database
 
 export function generateOTP(): string {
   return Math.floor(1000 + Math.random() * 9000).toString();
