@@ -47,7 +47,7 @@ export default function Auth() {
         password,
         options: {
           data: { full_name: fullName, role: roleChoice },
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: "https://eride-flax.vercel.app/auth",
         },
       });
 
