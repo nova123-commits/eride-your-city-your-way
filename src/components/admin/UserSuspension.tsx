@@ -17,7 +17,7 @@ interface UserProfile {
   verified: boolean;
 }
 
-const MOCK_DOCS: Record<string, { ntsa: string; insurance: string }> = {};
+// Driver documents are now fetched from the database
 
 export default function UserSuspension() {
   const { toast } = useToast();
