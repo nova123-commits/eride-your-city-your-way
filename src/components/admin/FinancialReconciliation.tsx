@@ -12,6 +12,13 @@ import CurrencyToggle from "@/components/payments/CurrencyToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
+interface MonthlyData {
+  month: string;
+  revenue: number;
+  payouts: number;
+  trips: number;
+}
+
 export default function FinancialReconciliation() {
   const { toast } = useToast();
   const [currency, setCurrency] = useState<CurrencyCode>("KES");
@@ -23,12 +30,66 @@ export default function FinancialReconciliation() {
   const [loadingTx, setLoadingTx] = useState(false);
   const [payoutModal, setPayoutModal] = useState<any | null>(null);
   const [payingOut, setPayingOut] = useState(false);
+  const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
+  const [loadingOverview, setLoadingOverview] = useState(true);
 
   // Fetch commission rate
   useEffect(() => {
     supabase.from("platform_settings").select("value").eq("key", "commission_rate").single()
       .then(({ data }) => { if (data) setCommission(data.value); });
   }, []);
+
+  // Fetch real financial data from rides and payouts
+  useEffect(() => {
+    if (tab !== "overview") return;
+    setLoadingOverview(true);
+
+    const fetchFinancials = async () => {
+      // Get completed rides from last 6 months
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+      const { data: rides } = await supabase
+        .from("rides")
+        .select("final_fare, completed_at")
+        .eq("status", "ride_completed")
+        .gte("completed_at", sixMonthsAgo.toISOString())
+        .order("completed_at", { ascending: true });
+
+      const { data: payouts } = await supabase
+        .from("driver_payouts")
+        .select("net_amount, created_at")
+        .gte("created_at", sixMonthsAgo.toISOString());
+
+      // Group by month
+      const monthMap: Record<string, { revenue: number; payouts: number; trips: number }> = {};
+
+      (rides || []).forEach(r => {
+        if (!r.completed_at) return;
+        const d = new Date(r.completed_at);
+        const key = `${d.toLocaleString("default", { month: "short" })} ${d.getFullYear()}`;
+        if (!monthMap[key]) monthMap[key] = { revenue: 0, payouts: 0, trips: 0 };
+        monthMap[key].revenue += Number(r.final_fare) || 0;
+        monthMap[key].trips += 1;
+      });
+
+      (payouts || []).forEach(p => {
+        const d = new Date(p.created_at);
+        const key = `${d.toLocaleString("default", { month: "short" })} ${d.getFullYear()}`;
+        if (!monthMap[key]) monthMap[key] = { revenue: 0, payouts: 0, trips: 0 };
+        monthMap[key].payouts += Number(p.net_amount) || 0;
+      });
+
+      const result: MonthlyData[] = Object.entries(monthMap).map(([month, data]) => ({
+        month, ...data,
+      }));
+
+      setMonthlyData(result);
+      setLoadingOverview(false);
+    };
+
+    fetchFinancials();
+  }, [tab]);
 
   // Fetch ledger
   useEffect(() => {
@@ -57,22 +118,14 @@ export default function FinancialReconciliation() {
     setPayoutModal(null);
   };
 
-  const MOCK_DATA = [
-    { month: "Jan 2026", revenue: 4850000, payouts: 3880000, trips: 15200 },
-    { month: "Feb 2026", revenue: 4520000, payouts: 3616000, trips: 14100 },
-    { month: "Mar 2026", revenue: 5210000, payouts: 4168000, trips: 16800 },
-    { month: "Apr 2026", revenue: 4980000, payouts: 3984000, trips: 15900 },
-    { month: "May 2026", revenue: 5400000, payouts: 4320000, trips: 17200 },
-  ];
-
-  const totalRevenue = MOCK_DATA.reduce((s, d) => s + d.revenue, 0);
-  const totalPayouts = MOCK_DATA.reduce((s, d) => s + d.payouts, 0);
+  const totalRevenue = monthlyData.reduce((s, d) => s + d.revenue, 0);
+  const totalPayouts = monthlyData.reduce((s, d) => s + d.payouts, 0);
   const platformNet = totalRevenue - totalPayouts;
 
   const exportCSV = () => {
     setExporting(true);
     const header = "Month,Revenue (KES),Driver Payouts (KES),Platform Net (KES),Trips\n";
-    const rows = MOCK_DATA.map(d => `${d.month},${d.revenue},${d.payouts},${d.revenue - d.payouts},${d.trips}`).join("\n");
+    const rows = monthlyData.map(d => `${d.month},${d.revenue},${d.payouts},${d.revenue - d.payouts},${d.trips}`).join("\n");
     const blob = new Blob([header + rows], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url;
@@ -103,72 +156,82 @@ export default function FinancialReconciliation() {
 
       {tab === "overview" && (
         <>
-          {/* Summary cards */}
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { label: "Revenue", value: totalRevenue, icon: TrendingUp, color: "text-primary" },
-              { label: "Payouts", value: totalPayouts, icon: Minus, color: "text-muted-foreground" },
-              { label: "Net", value: platformNet, icon: DollarSign, color: "text-primary" },
-            ].map(stat => (
-              <Card key={stat.label} className="border-border/60">
-                <CardContent className="p-3 text-center">
-                  <stat.icon className={`w-4 h-4 mx-auto mb-1 ${stat.color}`} />
-                  <p className="text-[10px] text-muted-foreground">{stat.label}</p>
-                  <p className="text-sm font-bold text-foreground">{formatCurrency(stat.value, currency)}</p>
+          {loadingOverview ? (
+            <div className="text-center py-8"><Loader2 className="w-5 h-5 animate-spin mx-auto text-muted-foreground" /></div>
+          ) : (
+            <>
+              {/* Summary cards */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Revenue", value: totalRevenue, icon: TrendingUp, color: "text-primary" },
+                  { label: "Payouts", value: totalPayouts, icon: Minus, color: "text-muted-foreground" },
+                  { label: "Net", value: platformNet, icon: DollarSign, color: "text-primary" },
+                ].map(stat => (
+                  <Card key={stat.label} className="border-border/60">
+                    <CardContent className="p-3 text-center">
+                      <stat.icon className={`w-4 h-4 mx-auto mb-1 ${stat.color}`} />
+                      <p className="text-[10px] text-muted-foreground">{stat.label}</p>
+                      <p className="text-sm font-bold text-foreground">{formatCurrency(stat.value, currency)}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Global Commission */}
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Settings className="w-4 h-4 text-primary" />
+                    <p className="text-sm font-semibold text-foreground">Global Commission Rate</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <Label className="text-xs text-muted-foreground">Rate (%)</Label>
+                      <Input type="number" value={commission} onChange={e => setCommission(e.target.value)} className="mt-1" min="0" max="100" />
+                    </div>
+                    <Button onClick={saveCommission} disabled={savingCommission} className="mt-5 gap-1" size="sm">
+                      {savingCommission ? <Loader2 className="w-3 h-3 animate-spin" /> : <Settings className="w-3 h-3" />}
+                      Save
+                    </Button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-2">Applied to all future ride fares platform-wide.</p>
                 </CardContent>
               </Card>
-            ))}
-          </div>
 
-          {/* Global Commission */}
-          <Card className="border-primary/20 bg-primary/5">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Settings className="w-4 h-4 text-primary" />
-                <p className="text-sm font-semibold text-foreground">Global Commission Rate</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex-1">
-                  <Label className="text-xs text-muted-foreground">Rate (%)</Label>
-                  <Input type="number" value={commission} onChange={e => setCommission(e.target.value)} className="mt-1" min="0" max="100" />
-                </div>
-                <Button onClick={saveCommission} disabled={savingCommission} className="mt-5 gap-1" size="sm">
-                  {savingCommission ? <Loader2 className="w-3 h-3 animate-spin" /> : <Settings className="w-3 h-3" />}
-                  Save
-                </Button>
-              </div>
-              <p className="text-[10px] text-muted-foreground mt-2">Applied to all future ride fares platform-wide.</p>
-            </CardContent>
-          </Card>
-
-          {/* Revenue Table */}
-          <Card className="border-border/60">
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-xs">Month</TableHead>
-                    <TableHead className="text-xs text-right">Revenue</TableHead>
-                    <TableHead className="text-xs text-right">Payouts</TableHead>
-                    <TableHead className="text-xs text-right">Net</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {MOCK_DATA.map(row => (
-                    <TableRow key={row.month}>
-                      <TableCell className="text-xs font-medium">{row.month}</TableCell>
-                      <TableCell className="text-xs text-right text-primary font-semibold">{formatCurrency(row.revenue, currency)}</TableCell>
-                      <TableCell className="text-xs text-right text-muted-foreground">{formatCurrency(row.payouts, currency)}</TableCell>
-                      <TableCell className="text-xs text-right font-semibold">{formatCurrency(row.revenue - row.payouts, currency)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-          <Button variant="outline" className="w-full gap-2" onClick={exportCSV} disabled={exporting}>
-            <Download className="w-4 h-4" /> {exporting ? "Exporting..." : "Export CSV"}
-          </Button>
+              {/* Revenue Table */}
+              {monthlyData.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">No completed rides yet. Financial data will appear here after rides are completed.</p>
+              ) : (
+                <Card className="border-border/60">
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-xs">Month</TableHead>
+                          <TableHead className="text-xs text-right">Revenue</TableHead>
+                          <TableHead className="text-xs text-right">Payouts</TableHead>
+                          <TableHead className="text-xs text-right">Net</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {monthlyData.map(row => (
+                          <TableRow key={row.month}>
+                            <TableCell className="text-xs font-medium">{row.month}</TableCell>
+                            <TableCell className="text-xs text-right text-primary font-semibold">{formatCurrency(row.revenue, currency)}</TableCell>
+                            <TableCell className="text-xs text-right text-muted-foreground">{formatCurrency(row.payouts, currency)}</TableCell>
+                            <TableCell className="text-xs text-right font-semibold">{formatCurrency(row.revenue - row.payouts, currency)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              )}
+              <Button variant="outline" className="w-full gap-2" onClick={exportCSV} disabled={exporting || monthlyData.length === 0}>
+                <Download className="w-4 h-4" /> {exporting ? "Exporting..." : "Export CSV"}
+              </Button>
+            </>
+          )}
         </>
       )}
 
@@ -195,10 +258,10 @@ export default function FinancialReconciliation() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className={`text-sm font-bold ${tx.type === "deposit" || tx.type === "ride_earning" ? "text-primary" : "text-destructive"}`}>
-                        {tx.type === "deposit" || tx.type === "ride_earning" ? "+" : "-"}KES {Number(tx.amount).toLocaleString()}
+                      <p className={`text-sm font-bold ${tx.type === "deposit" || tx.type === "credit" ? "text-primary" : "text-destructive"}`}>
+                        {tx.type === "deposit" || tx.type === "credit" ? "+" : "-"}KES {Number(tx.amount).toLocaleString()}
                       </p>
-                      {tx.type === "withdrawal" || tx.type === "ride_earning" ? (
+                      {tx.type === "withdrawal" ? (
                         <Button size="sm" variant="outline" className="text-[10px] h-6 mt-1 gap-1" onClick={() => setPayoutModal(tx)}>
                           <Send className="w-3 h-3" /> Confirm Payout
                         </Button>
