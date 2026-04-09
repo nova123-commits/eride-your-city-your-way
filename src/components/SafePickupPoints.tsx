@@ -19,46 +19,75 @@ const ICON_MAP = {
   landmark: Building2,
 };
 
-// Fallback landmarks when API is unavailable
-const FALLBACK_POINTS: PickupPoint[] = [
-  { name: 'Total Energies Station', address: 'Total Station, Moi Avenue', type: 'fuel' },
-  { name: 'Naivas Supermarket', address: 'Naivas, Tom Mboya St', type: 'mall' },
-  { name: 'KICC Building', address: 'KICC, City Hall Way', type: 'landmark' },
-];
+/** Haversine distance in km */
+function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
 const SafePickupPoints: React.FC<SafePickupPointsProps> = ({ onSelect }) => {
-  const [points, setPoints] = useState<PickupPoint[]>(FALLBACK_POINTS);
-  const [loading, setLoading] = useState(false);
+  const [points, setPoints] = useState<PickupPoint[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchNearbyPlaces = async () => {
-      if (!navigator.geolocation) return;
+    let cancelled = false;
 
-      setLoading(true);
+    const fetchPoints = async () => {
       try {
-        const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
-        );
+        // Fetch all active pickup points from DB
+        const { data: dbPoints } = await supabase
+          .from('safe_pickup_points')
+          .select('name, address, type, latitude, longitude')
+          .eq('is_active', true);
 
-        const { data, error } = await supabase.functions.invoke('nearby-landmarks', {
-          body: {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          },
-        });
-
-        if (!error && data?.points?.length > 0) {
-          setPoints(data.points.slice(0, 3));
+        if (cancelled || !dbPoints?.length) {
+          if (!cancelled) setLoading(false);
+          return;
         }
+
+        // Try to get user location to sort by proximity
+        let userLat = -1.2921; // default Nairobi CBD
+        let userLng = 36.8219;
+
+        try {
+          const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+          );
+          userLat = pos.coords.latitude;
+          userLng = pos.coords.longitude;
+        } catch {
+          // Use default Nairobi coordinates
+        }
+
+        if (cancelled) return;
+
+        // Sort by distance and pick closest 5
+        const sorted = dbPoints
+          .map((p) => ({
+            name: p.name,
+            address: p.address,
+            type: p.type as PickupPoint['type'],
+            dist: distanceKm(userLat, userLng, p.latitude, p.longitude),
+          }))
+          .sort((a, b) => a.dist - b.dist)
+          .slice(0, 5);
+
+        setPoints(sorted);
       } catch {
-        // Use fallback points
+        // silent
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
-    fetchNearbyPlaces();
+    fetchPoints();
+    return () => { cancelled = true; };
   }, []);
 
   const handleSelect = (point: PickupPoint) => {
