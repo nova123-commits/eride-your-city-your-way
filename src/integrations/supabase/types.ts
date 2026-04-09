@@ -781,6 +781,42 @@ export type Database = {
         }
         Relationships: []
       }
+      safe_pickup_points: {
+        Row: {
+          address: string
+          city: string
+          created_at: string
+          id: string
+          is_active: boolean
+          latitude: number
+          longitude: number
+          name: string
+          type: string
+        }
+        Insert: {
+          address: string
+          city?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          latitude: number
+          longitude: number
+          name: string
+          type?: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          latitude?: number
+          longitude?: number
+          name?: string
+          type?: string
+        }
+        Relationships: []
+      }
       saved_addresses: {
         Row: {
           address: string
