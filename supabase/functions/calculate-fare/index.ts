@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { pickup, destination, distance_km, category, rider_id } = await req.json();
+    const { distance_km, category } = await req.json();
 
     if (!distance_km || !category) {
       return new Response(JSON.stringify({ error: "distance_km and category are required" }), {
@@ -25,7 +25,6 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Load platform settings
     const { data: settings } = await supabase
       .from("platform_settings")
       .select("key,value");
@@ -41,10 +40,8 @@ serve(async (req) => {
     const minFare = parseFloat(cfg.minimum_fare ?? "150");
     const commissionPercent = parseFloat(cfg.driver_commission_percent ?? "15");
 
-    // Category multipliers
     const categoryMultiplier = category === "xtra" ? 2.5 : category === "boda" ? 0.5 : 1.0;
 
-    // Check surge rules
     const now = new Date();
     const hour = now.getHours();
     const dow = now.getDay();
@@ -55,15 +52,14 @@ serve(async (req) => {
       .eq("is_active", true);
 
     let surgeMultiplier = 1.0;
-    surgeRules?.forEach((rule: any) => {
+    surgeRules?.forEach((rule: { day_of_week: number[] | null; start_hour: number; end_hour: number; multiplier: number }) => {
       const dayMatch = !rule.day_of_week || rule.day_of_week.length === 0 || rule.day_of_week.includes(dow);
       if (dayMatch && hour >= rule.start_hour && hour < rule.end_hour) {
         surgeMultiplier = Math.max(surgeMultiplier, rule.multiplier);
       }
     });
 
-    // Calculate
-    const estimatedMinutes = Math.round(distance_km * 3); // rough estimate
+    const estimatedMinutes = Math.round(distance_km * 3);
     const rawFare = (baseFare + (distance_km * perKm) + (estimatedMinutes * perMin)) * categoryMultiplier * surgeMultiplier;
     const fare = Math.max(Math.round(rawFare), minFare);
     const commission = Math.round(fare * (commissionPercent / 100));
@@ -88,8 +84,9 @@ serve(async (req) => {
     return new Response(JSON.stringify(breakdown), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
