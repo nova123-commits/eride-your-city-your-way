@@ -61,16 +61,7 @@ const LoyaltyRewards: React.FC<LoyaltyRewardsProps> = ({ totalSpentKES = 0 }) =>
     });
   };
 
-  // Demo: add sample points
-  const addDemoPoints = () => {
-    const updated = {
-      ...pointsData,
-      totalPoints: pointsData.totalPoints + 25,
-    };
-    setPointsData(updated);
-    localStorage.setItem('eride_loyalty_points', JSON.stringify(updated));
-    toast({ title: '+25 demo points added' });
-  };
+
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -133,25 +124,15 @@ const LoyaltyRewards: React.FC<LoyaltyRewardsProps> = ({ totalSpentKES = 0 }) =>
             <p>• 100 Points = KES 50 discount on next ride</p>
           </div>
 
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 text-xs"
-              onClick={addDemoPoints}
-            >
-              <Gift className="w-3.5 h-3.5 mr-1" /> +25 Demo
-            </Button>
-            <Button
-              size="sm"
-              className="flex-1 text-xs gap-1"
-              onClick={handleRedeem}
-              disabled={!canRedeem}
-            >
-              <Star className="w-3.5 h-3.5" />
-              {canRedeem ? `Redeem KES ${REWARD_DISCOUNT_KES}` : 'Not enough pts'}
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            className="w-full text-xs gap-1"
+            onClick={handleRedeem}
+            disabled={!canRedeem}
+          >
+            <Star className="w-3.5 h-3.5" />
+            {canRedeem ? `Redeem KES ${REWARD_DISCOUNT_KES}` : 'Not enough pts'}
+          </Button>
         </CardContent>
       </Card>
     </motion.div>

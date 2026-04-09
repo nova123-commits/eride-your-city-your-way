@@ -24,7 +24,6 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get ride details
     const { data: ride, error: rideErr } = await supabase
       .from("rides")
       .select("*")
@@ -45,7 +44,6 @@ serve(async (req) => {
       });
     }
 
-    // Find nearest available driver
     const { data: drivers } = await supabase
       .from("driver_locations")
       .select("driver_id, latitude, longitude")
@@ -58,7 +56,6 @@ serve(async (req) => {
       });
     }
 
-    // Simple distance calculation (haversine approximation)
     const pickupLat = ride.pickup_lat ?? 0;
     const pickupLng = ride.pickup_lng ?? 0;
 
@@ -71,14 +68,13 @@ serve(async (req) => {
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     };
 
-    // Sort by distance, pick nearest within 10km
     const candidates = drivers
-      .map((d: any) => ({
+      .map((d: { driver_id: string; latitude: number; longitude: number }) => ({
         ...d,
         distance: haversine(pickupLat, pickupLng, d.latitude, d.longitude),
       }))
-      .filter((d: any) => d.distance <= 10)
-      .sort((a: any, b: any) => a.distance - b.distance);
+      .filter((d) => d.distance <= 10)
+      .sort((a, b) => a.distance - b.distance);
 
     if (candidates.length === 0) {
       return new Response(JSON.stringify({ error: "No drivers within range", assigned: false }), {
@@ -88,16 +84,14 @@ serve(async (req) => {
     }
 
     const assignedDriver = candidates[0];
-
-    // Update ride
     const now = new Date().toISOString();
+
     await supabase.from("rides").update({
       driver_id: assignedDriver.driver_id,
       status: "driver_assigned",
       updated_at: now,
     }).eq("id", ride_id);
 
-    // Log status transition
     await supabase.from("ride_status_history").insert({
       ride_id,
       from_status: "requested",
@@ -112,8 +106,9 @@ serve(async (req) => {
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

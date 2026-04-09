@@ -6,13 +6,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const VALID_TRANSITIONS: Record<string, string[]> = {
-  requested: ["driver_assigned", "cancelled"],
-  driver_assigned: ["driver_arriving", "cancelled"],
-  driver_arriving: ["ride_started", "cancelled"],
-  ride_started: ["ride_completed", "cancelled"],
-};
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -31,7 +24,6 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get ride
     const { data: ride, error: rideErr } = await supabase
       .from("rides")
       .select("*")
@@ -52,7 +44,6 @@ serve(async (req) => {
       });
     }
 
-    // Load commission from settings
     const { data: settings } = await supabase
       .from("platform_settings")
       .select("key,value")
@@ -106,12 +97,7 @@ serve(async (req) => {
         status: "completed",
       });
 
-      // 5. Credit driver wallet
-      await supabase.from("wallets")
-        .update({ balance: supabase.rpc ? undefined : 0 })
-        .eq("user_id", ride.driver_id);
-
-      // Use raw SQL via rpc would be better, but we'll do a select-then-update
+      // 5. Credit driver wallet (select then update)
       const { data: wallet } = await supabase
         .from("wallets")
         .select("balance")
@@ -154,8 +140,9 @@ serve(async (req) => {
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
